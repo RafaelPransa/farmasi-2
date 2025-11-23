@@ -1,0 +1,625 @@
+body {
+  font-family: var(--font-poppins);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Opening Scene */
+.container-opening {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.opening-background {
+  text-align: center;
+  color: white;
+}
+
+.opening-title {
+  font-size: 5.5em;
+  margin-bottom: 20px;
+  text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
+  animation: bounce 2s infinite;
+}
+
+.opening-subtitle {
+  font-size: 1.5em;
+  opacity: 0.9;
+}
+
+/* Scene Opening */
+.container-scene-opening {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}
+
+.scene-opening {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url(../assets/backgrounds/school.jpg);
+  /* background-repeat: no-repeat; */
+  background-size: cover;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+
+.character {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.character img {
+  width: 100%;
+  height: 100%;
+}
+
+.container-teks-opening {
+  flex: 2;
+  text-align: center;
+  max-width: 600px;
+}
+
+.teks-opening {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 30px;
+  border-radius: 20px;
+  margin-bottom: 30px;
+  min-height: 150px;
+  line-height: 1.6;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  border: 3px solid #fff;
+  text-align: left;
+}
+
+/* Button Styles */
+.btn-hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.btn-secondary {
+  background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+  color: white;
+  border: none;
+  padding: 15px 20px;
+  min-width: 200px;
+  font-size: 1.2em;
+  font-weight: 600;
+  border-radius: 50px;
+  cursor: pointer;
+  transform: translateY(0);
+  transition: all 1s ease-in, box-shadow 0.3s ease-in;
+}
+
+.btn-secondary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+#btn-start,
+.btn-primary {
+  background: linear-gradient(135deg, #4cd964, #2e8b57);
+  color: white;
+  border: none;
+  padding: 15px 20px;
+  min-width: 200px;
+  font-size: 1.2em;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+#btn-start:hover,
+.btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+#btn-start:active,
+.btn-primary:active {
+  transform: translateY(-1px);
+}
+
+.container-btn {
+  display: flex;
+  column-gap: 1rem;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Kuis Scene */
+.scene-kuis,
+.scene-sarapan,
+.scene-hasil {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  z-index: 1000;
+  overflow-y: auto;
+}
+
+.kuis-container,
+.sarapan-container,
+.hasil-container {
+  max-width: 900px;
+  margin: 0 auto 4rem;
+  padding: 40px 20px;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.kuis-header,
+.sarapan-header {
+  text-align: center;
+  color: white;
+  margin-bottom: 30px;
+}
+
+.kuis-header h2,
+.sarapan-header h2 {
+  font-size: 2.5em;
+  margin-bottom: 20px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.progress-container,
+.energy-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  color: white;
+  font-size: 1.2em;
+}
+
+.progress-bar,
+.energy-bar {
+  width: 300px;
+  height: 15px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.progress-fill,
+.energy-fill {
+  height: 100%;
+  border-radius: 10px;
+  transition: width 0.5s ease;
+}
+
+.progress-fill {
+  background: linear-gradient(90deg, #4cd964, #2e8b57);
+  width: 33%;
+}
+
+.energy-fill {
+  background: linear-gradient(90deg, #4cd964, #2e8b57);
+  width: 50%;
+}
+
+/* Soal Kuis */
+.kuis-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.soal-kuis {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 20px;
+  border-radius: 20px;
+  width: 80%;
+  max-width: 700px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+}
+
+.soal-kuis h3 {
+  color: #667eea;
+  font-size: 1.5em;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.opsi-jawaban {
+  display: grid;
+  gap: 15px;
+}
+
+.opsi-jawaban label {
+  display: flex;
+  align-items: center;
+  padding: 20px;
+  background: #f8f9fa;
+  border: 2px solid #e9ecef;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.opsi-jawaban label:hover {
+  background: #e9ecef;
+  transform: translateY(-2px);
+  border-color: #667eea;
+}
+
+.opsi-jawaban input:checked + .opsi-text {
+  background: #667eea;
+  color: white;
+  border-color: #667eea;
+}
+
+.opsi-text {
+  padding: 15px 20px;
+  border-radius: 10px;
+  flex: 1;
+  transition: all 0.3s ease;
+}
+
+/* Navigation Buttons */
+.navigation-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 30px;
+}
+
+.btn-nav {
+  margin-top: 1rem;
+  padding: 12px 30px;
+  border: none;
+  border-radius: 25px;
+  font-size: 1.1em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.9);
+  color: #667eea;
+}
+
+.btn-nav:hover {
+  background: white;
+  transform: translateY(-2px);
+}
+
+/* Result Message */
+.result-container {
+  text-align: center;
+}
+
+.result-message {
+  padding: 25px;
+  margin: 20px 0;
+  border-radius: 15px;
+  font-size: 1.3em;
+  font-weight: bold;
+  display: none;
+}
+
+.result-positive {
+  background: #4cd964;
+  color: white;
+  display: block !important;
+}
+
+.result-negative {
+  background: #ff3b30;
+  color: white;
+  display: block !important;
+}
+
+/* Hasil Scene */
+.hasil-card {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 50px;
+  border-radius: 25px;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.hasil-card h2 {
+  color: #667eea;
+  font-size: 2.5em;
+  margin-bottom: 30px;
+}
+
+.score-container {
+  margin: 30px 0;
+}
+
+.score-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 0;
+  border-bottom: 2px solid #f0f0f0;
+  font-size: 1.2em;
+}
+
+.score-value {
+  font-weight: bold;
+  color: #667eea;
+  font-size: 1.3em;
+}
+
+.hasil-message {
+  font-size: 1.3em;
+  color: #333;
+  margin: 25px 0;
+  line-height: 1.6;
+}
+
+/* Styles untuk Detail Skor di Hasil Akhir */
+.score-detail {
+  background: rgba(102, 126, 234, 0.1);
+  padding: 25px;
+  border-radius: 15px;
+  margin: 20px 0;
+  border-left: 5px solid #667eea;
+}
+
+.score-item-detail {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(102, 126, 234, 0.2);
+  font-size: 1.1em;
+}
+
+.score-item-detail:last-child {
+  border-bottom: none;
+}
+
+.score-item-detail.bonus-item {
+  color: #4cd964;
+  font-weight: bold;
+}
+
+.score-item-detail.total-item {
+  background: rgba(102, 126, 234, 0.1);
+  margin: 10px -25px;
+  padding: 15px 25px;
+  border-bottom: none;
+  border-top: 2px solid #667eea;
+  border-bottom: 2px solid #667eea;
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+.score-label {
+  color: #333;
+}
+
+.score-value {
+  font-weight: bold;
+  color: #667eea;
+}
+
+.bonus-value {
+  color: #4cd964 !important;
+}
+
+.total-value {
+  color: #2e8b57 !important;
+  font-size: 1.3em;
+}
+
+.feedback-message {
+  margin-top: 25px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 15px;
+  border: 2px solid;
+  font-size: 1.2em;
+  text-align: center;
+}
+
+/* Animations */
+@keyframes bounce {
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-20px);
+  }
+  60% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes popIn {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes typewriter {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes blink {
+  0%,
+  50% {
+    opacity: 1;
+  }
+  51%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Character Animations */
+.character-bounce {
+  animation: bounce 2s ease-in-out;
+}
+
+.fade-in {
+  animation: fadeIn 0.8s ease;
+}
+
+.slide-up {
+  animation: slideUp 0.5s ease;
+}
+
+.pop-in {
+  animation: popIn 0.5s ease;
+}
+
+/* Styles untuk Edukasi Popup */
+.edukasi-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  animation: fadeIn 0.3s ease;
+}
+
+.popup-content {
+  background: white;
+  padding: 30px;
+  border-radius: 20px;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  animation: popIn 0.5s ease;
+}
+
+.popup-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.popup-icon {
+  font-size: 2.5em;
+}
+
+.popup-header h3 {
+  color: #667eea;
+  font-size: 1.8em;
+  margin: 0;
+}
+
+.popup-message {
+  font-size: 1.2em;
+  line-height: 1.6;
+  color: #333;
+  margin-bottom: 25px;
+}
+
+.popup-close {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 25px;
+  font-size: 1.1em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.popup-close:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* Tablet */
+@media (max-width: 768px) {
+  .scene-opening {
+    flex-direction: column;
+    padding: 20px;
+  }
+
+  .character {
+    flex: none;
+    margin: 10px 0;
+  }
+
+  progress-bar,
+  .energy-bar {
+    width: 200px;
+  }
+
+  .opening-title {
+    font-size: 2.5em;
+  }
+}
