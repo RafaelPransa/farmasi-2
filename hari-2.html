@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>FeSmart - Hari 2</title>
-    <link rel="stylesheet" href="css/reset.css" />
     <link rel="stylesheet" href="css/general.css" />
     <link rel="stylesheet" href="css/hari-2.css" />
   </head>
@@ -17,8 +16,8 @@
     </div>
     <!-- Scene 1: Dialog Opening -->
     <div class="scene-opening">
-      <div class="character" id="character-nisa">
-        <img src="assets/images/characters/nisa-normal.png" alt="Nisa" />
+      <div class="character" id="character-main">
+        <img id="main-character-img" src="" alt="Karakter Utama" />
       </div>
 
       <div class="container-teks-opening">
@@ -30,13 +29,13 @@
             Kembali ke Hari 1
           </button>
           <button type="button" id="btn-start" class="btn-hidden">
-            Lanjutkan
+            Lanjutkan Perjalanan
           </button>
         </div>
       </div>
 
       <div class="character" id="character-teman">
-        <img src="assets/images/characters/teman-nisa.png" alt="Teman" />
+        <img src="assets/images/characters/teman-npc.png" alt="Teman" />
       </div>
     </div>
 
@@ -120,6 +119,14 @@
           </button>
         </div>
       </div>
+    </div>
+
+    <!-- Game Controls -->
+    <div class="game-controls">
+      <button class="control-btn" onclick="window.location.href='index.html'">
+        🏠 Halaman Utama
+      </button>
+      <button class="control-btn" onclick="toggleSound()">🔊 Sound</button>
     </div>
 
     <script src="js/hari-2.js"></script>

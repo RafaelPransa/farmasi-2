@@ -96,32 +96,7 @@ body {
   animation: typewriter 3s steps(40, end), blink 0.8s infinite;
 }
 
-/* ===== ADDITIONAL GAME CONTROLS ===== */
-.game-controls {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  z-index: 1000;
-  display: flex;
-  gap: 10px;
-}
 
-.control-btn {
-  background: rgba(255, 255, 255, 0.2);
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  color: white;
-  padding: 10px 15px;
-  border-radius: 50px;
-  cursor: pointer;
-  transition: var(--transition);
-  backdrop-filter: blur(10px);
-  font-weight: 600;
-}
-
-.control-btn:hover {
-  background: rgba(255, 255, 255, 0.3);
-  transform: translateY(-2px);
-}
 
 /* Responsive Design */
 @media (max-width: 768px) {

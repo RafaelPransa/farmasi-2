@@ -296,7 +296,7 @@ document.addEventListener('DOMContentLoaded', function () {
       username: username,
       character: selectedCharacter, // 'siti' atau 'sari'
       characterName: getCharacterName(selectedCharacter), // Nama karakter
-      characterImage: getCharacterImage(selectedCharacter, 'normal'), // Path gambar
+      characterImage: getCharacterImage(selectedCharacter, 'murung'), // Path gambar
       isAnonymous: isAnonymous,
       startTime: new Date().toISOString(),
       progress: {

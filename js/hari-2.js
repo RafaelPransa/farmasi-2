@@ -6,11 +6,51 @@ document.addEventListener('DOMContentLoaded', function () {
   const sceneSimulasi = document.querySelector('.scene-simulasi');
   const sceneHasil = document.querySelector('.scene-hasil');
 
-  const nisa = document.getElementById('character-nisa');
+  const characterMain = document.getElementById('character-main');
   const teman = document.getElementById('character-teman');
   const teksOpening = document.querySelector('.teks-opening');
   const btnStart = document.getElementById('btn-start');
   const btnBack = document.querySelector('.container-btn .btn-secondary');
+
+  // Load user data dari localStorage
+  const userData = JSON.parse(localStorage.getItem('fesmart_user'));
+  if (!userData) {
+    window.location.href = 'index.html';
+    return;
+  }
+
+  function getCharacterImage(characterId, emotion = 'normal') {
+    const characterImages = {
+      siti: {
+        normal: 'assets/images/characters/siti-normal.png',
+        murung: 'assets/images/characters/siti-murung.png',
+        senang: 'assets/images/characters/siti-senang.png',
+      },
+      sari: {
+        normal: 'assets/images/characters/sari-normal.png',
+        murung: 'assets/images/characters/sari-murung.png',
+        senang: 'assets/images/characters/sari-senang.png',
+      },
+    };
+    return (
+      characterImages[characterId]?.[emotion] ||
+      characterImages[characterId]?.['murung'] ||
+      'assets/images/characters/default.png'
+    );
+  }
+
+  const mainCharacter = {
+    id: userData.character,
+    name: userData.characterName,
+    image: getCharacterImage(userData.character, 'normal'),
+  };
+
+  function updateCharacterElements() {
+    // Update gambar karakter utama
+    const mainCharacterImg = document.getElementById('main-character-img');
+    mainCharacterImg.src = mainCharacter.image;
+    mainCharacterImg.alt = mainCharacter.name;
+  }
 
   // Data kuis hari 2
   const kuisData = [
@@ -59,6 +99,9 @@ document.addEventListener('DOMContentLoaded', function () {
   initGame();
 
   function initGame() {
+    // Update karakter
+    updateCharacterElements();
+
     // Opening animation sequence
     setTimeout(() => {
       containerOpening.style.transform = 'translateY(-100vh)';
@@ -76,7 +119,7 @@ document.addEventListener('DOMContentLoaded', function () {
   function startOpeningScene() {
     // Animate characters entering
     setTimeout(() => {
-      nisa.classList.add('slide-nisa');
+      characterMain.classList.add('slide-main');
       teman.classList.add('slide-teman');
     }, 500);
 
@@ -98,9 +141,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function showDialog() {
     const dialogLines = [
-      'TEMAN NISA: "Hai Nisa, aku lihat kamu masih sering lesu. Aku dulu juga gitu lho!"',
-      'NISA: "Iya nih, gimana caranya kamu bisa lebih berenergi sekarang?"',
-      'TEMAN NISA: "Aku rutin minum tablet Fe setiap minggu di sekolah. Coba kamu ikutan. Tapi harus tahu aturan minumnya ya, biar efektif!"',
+      `TEMAN ${mainCharacter.name.toUpperCase()}: "Hai ${
+        mainCharacter.name
+      }, aku lihat kamu masih sering lesu. Aku dulu juga gitu lho!"`,
+      `${mainCharacter.name.toUpperCase()}: "Iya nih, gimana caranya kamu bisa lebih berenergi sekarang?"`,
+      `TEMAN ${mainCharacter.name.toUpperCase()}: "Aku rutin minum tablet Fe setiap minggu di sekolah. Coba kamu ikutan. Tapi harus tahu aturan minumnya ya, biar efektif!"`,
     ];
 
     typeWriterMultiple(dialogLines, 40, 800);
