@@ -3,127 +3,132 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>FeSmart</title>
-    <link rel="stylesheet" href="css/reset.css" />
+    <title>FeSmart - Dashboard</title>
     <link rel="stylesheet" href="css/general.css" />
     <link rel="stylesheet" href="css/main.css" />
   </head>
   <body>
-    <!-- Opening Scene -->
-    <div class="container-opening">
-      <div class="opening-background">
-        <h1 class="opening-title">Mini Game - FeSmart</h1>
-        <div class="opening-subtitle">
-          Mari bantu Nisa memahami dan mengatasi anemia!
+    <!-- Dashboard Scene -->
+    <div class="dashboard-scene">
+      <div class="dashboard-container">
+        <!-- Header -->
+        <div class="dashboard-header">
+          <h1 class="dashboard-title">🎮 FeSmart</h1>
+          <p class="dashboard-subtitle">Petualangan Melawan Anemia</p>
         </div>
-      </div>
-    </div>
 
-    <!-- Scene 1: Dialog Opening -->
-    <div class="scene-opening">
-      <div class="character" id="character-nisa">
-        <img src="assets/images/characters/nisa-murung.png" alt="Nisa murung" />
-      </div>
+        <!-- Character Selection -->
+        <div class="character-selection">
+          <h2>Pilih Karaktermu</h2>
+          <div class="characters-grid">
+            <div class="character-card" data-character="siti">
+              <div class="character-avatar">
+                <img
+                  src="assets/images/characters/siti-normal.png"
+                  alt="Siti"
+                />
+              </div>
+              <div class="character-name">Siti</div>
+              <div class="character-desc">Siswi SMP yang peduli kesehatan</div>
+            </div>
 
-      <div class="container-teks-opening">
-        <div class="teks-opening">
-          <!-- Teks akan diisi oleh JavaScript -->
+            <div class="character-card" data-character="sari">
+              <div class="character-avatar">
+                <img
+                  src="assets/images/characters/sari-normal.png"
+                  alt="Sari"
+                />
+              </div>
+              <div class="character-name">Sari</div>
+              <div class="character-desc">Siswa berprestasi di kelas</div>
+            </div>
+          </div>
         </div>
-        <button type="button" id="btn-start" class="btn-hidden">
-          Mulai Perjalanan
+
+        <!-- Username Input -->
+        <div class="username-section">
+          <h2>Buat Namamu</h2>
+
+          <form id="user-form">
+            <!-- Anonymous Option -->
+            <div class="anonymous-option">
+              <label class="checkbox-container">
+                <input
+                  type="checkbox"
+                  id="anonymous-checkbox"
+                  name="anonymous"
+                />
+                <span class="checkmark"></span>
+                <span class="checkbox-label">Main sebagai Anonymous</span>
+              </label>
+            </div>
+
+            <!-- Input -->
+            <div class="input-container">
+              <input
+                type="text"
+                id="username-input"
+                name="username"
+                placeholder="Masukkan nama kamu..."
+                maxlength="15"
+                required
+                disabled
+              />
+              <div class="input-helper">Maksimal 15 karakter</div>
+            </div>
+
+            <!-- Anonymous Character Info -->
+            <div class="anonymous-info" id="anonymous-info">
+              <div class="info-message">
+                <span class="info-icon">👤</span>
+                <span
+                  >Kamu akan bermain sebagai
+                  <strong>"Petualang FeSmart"</strong></span
+                >
+              </div>
+            </div>
+
+            <!-- Validation Message -->
+            <div class="validation-message" id="validation-message"></div>
+          </form>
+        </div>
+
+        <!-- Game Info -->
+        <div class="game-info">
+          <div class="info-card">
+            <div class="info-icon">🎯</div>
+            <div class="info-content">
+              <h3>7 Hari Petualangan</h3>
+              <p>Pelajari tentang anemia dan cara mencegahnya</p>
+            </div>
+          </div>
+
+          <div class="info-card">
+            <div class="info-icon">📊</div>
+            <div class="info-content">
+              <h3>Track Progress</h3>
+              <p>Lihat perkembangan skor pengetahuan dan kepatuhanmu</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Username Info -->
+        <div class="username-info-section">
+          <h3>
+            🚀 Mulai sebagai:
+            <span id="username-info" class="username-info"></span>
+          </h3>
+        </div>
+
+        <!-- Start Button -->
+        <button id="btn-start-game" class="btn-start" disabled>
+          Mulai Petualangan
         </button>
-      </div>
 
-      <div class="character" id="character-guru">
-        <img src="assets/images/characters/guru.png" alt="Guru" />
-      </div>
-    </div>
-
-    <!-- Scene 2: Kuis Anemia -->
-    <div class="scene-kuis" style="display: none">
-      <div class="kuis-container">
-        <div class="kuis-header">
-          <h2>📚 Kenali Anemia - Hari 1</h2>
-          <div class="progress-container">
-            <div class="progress-bar">
-              <div class="progress-fill" id="progress-fill"></div>
-            </div>
-            <span class="progress-text" id="progress-text">1/3</span>
-          </div>
-        </div>
-
-        <div class="kuis-content" id="kuis-content">
-          <!-- Konten kuis akan dimuat di sini -->
-        </div>
-
-        <div class="navigation-buttons">
-          <button id="btn-prev" class="btn-nav btn-hidden">⬅ Sebelumnya</button>
-          <button id="btn-next" class="btn-nav">Selanjutnya ➡</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Scene 3: Simulasi Sarapan -->
-    <div class="scene-sarapan" style="display: none">
-      <div class="sarapan-container">
-        <div class="sarapan-header">
-          <h2>🍽️ Pilih Menu Sarapan Nisa</h2>
-          <div class="energy-container">
-            <span class="energy-label">Energi Nisa:</span>
-            <div class="energy-bar">
-              <div class="energy-fill" id="energy-fill"></div>
-            </div>
-            <span class="energy-text" id="energy-text">50%</span>
-          </div>
-        </div>
-
-        <div class="food-options">
-          <div class="food-card" data-food="nasi-telur" data-energy="+30">
-            <div class="food-icon">🍛</div>
-            <h3>Nasi + Telur</h3>
-            <p>Kaya protein dan zat besi</p>
-            <div class="energy-change">+30 Energy</div>
-          </div>
-
-          <div class="food-card" data-food="roti" data-energy="+15">
-            <div class="food-icon">🍞</div>
-            <h3>Roti Gandum</h3>
-            <p>Serat tinggi, energi stabil</p>
-            <div class="energy-change">+15 Energy</div>
-          </div>
-
-          <div class="food-card" data-food="mie-instan" data-energy="-20">
-            <div class="food-icon">🍜</div>
-            <h3>Mie Instan</h3>
-            <p>Praktis tapi kurang gizi</p>
-            <div class="energy-change">-20 Energy</div>
-          </div>
-        </div>
-
-        <div class="result-container">
-          <div class="result-message" id="result-message"></div>
-          <button id="btn-lanjut" class="btn-primary btn-hidden">
-            Lanjutkan Perjalanan
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Scene 4: Hasil Akhir -->
-    <!-- Scene 4: Hasil Akhir -->
-    <div class="scene-hasil" style="display: none">
-      <div class="hasil-container">
-        <div class="hasil-card">
-          <h2>🎉 Selamat! Hari 1 Selesai</h2>
-
-          <!-- HANYA INI YANG ADA -->
-          <div class="hasil-message" id="hasil-message">
-            <!-- Detail skor akan dimuat di sini oleh JavaScript -->
-          </div>
-
-          <button id="btn-restart" class="btn-primary">
-            Lanjut ke Tahap Berikutnya
-          </button>
+        <!-- Loading Animation -->
+        <div class="loading-container" id="loading-container">
+          <div class="loading-spinner"></div>
+          <div class="loading-text">Memuat petualangan...</div>
         </div>
       </div>
     </div>

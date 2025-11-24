@@ -1,460 +1,389 @@
 document.addEventListener('DOMContentLoaded', function () {
   // DOM Elements
-  const containerOpening = document.querySelector('.container-opening');
-  const sceneOpening = document.querySelector('.scene-opening');
-  const sceneKuis = document.querySelector('.scene-kuis');
-  const sceneSarapan = document.querySelector('.scene-sarapan');
-  const sceneHasil = document.querySelector('.scene-hasil');
+  const characterCards = document.querySelectorAll('.character-card');
+  const userForm = document.getElementById('user-form');
+  const usernameInput = document.getElementById('username-input');
+  const usernameInfo = document.getElementById('username-info');
+  const anonymousCheckbox = document.getElementById('anonymous-checkbox');
+  const anonymousInfo = document.getElementById('anonymous-info');
+  const validationMessage = document.getElementById('validation-message');
+  const startButton = document.getElementById('btn-start-game');
+  const loadingContainer = document.getElementById('loading-container');
 
-  const nisa = document.getElementById('character-nisa');
-  const guru = document.getElementById('character-guru');
-  const teksOpening = document.querySelector('.teks-opening');
-  const btnStart = document.getElementById('btn-start');
+  // State
+  let selectedCharacter = null;
+  let isAnonymous = false;
+  let isFormValid = false;
 
-  // Data kuis
-  const kuisData = [
-    {
-      soal: 'Apa itu anemia?',
-      opsi: [
-        'Kekurangan sel darah putih',
-        'Kekurangan sel darah merah atau hemoglobin',
-        'Kelebihan gula dalam darah',
-        'Infeksi pada saluran pernapasan',
-      ],
-      jawaban: 1,
-    },
-    {
-      soal: 'Apa penyebab utama anemia?',
-      opsi: [
-        'Kurang olahraga',
-        'Kekurangan zat besi',
-        'Terlalu banyak tidur',
-        'Kebanyakan main game',
-      ],
-      jawaban: 1,
-    },
-    {
-      soal: 'Apa tanda-tanda anemia?',
-      opsi: [
-        'Wajah memerah dan energi berlebihan',
-        'Lemas, pucat, dan sulit konsentrasi',
-        'Berat badan naik drastis',
-        'Tidak ada gejala sama sekali',
-      ],
-      jawaban: 1,
-    },
-  ];
+  // Reset form setiap halaman dimuat
+  function resetForm() {
+    usernameInput.value = '';
+    anonymousCheckbox.checked = false;
+    anonymousInfo.style.display = 'none';
+    usernameInput.disabled = false;
+    usernameInput.setAttribute('required', '');
+    usernameInput.style.background = 'white';
+    validationMessage.textContent = '';
+    validationMessage.className = 'validation-message';
 
-  // Data makanan - TAMBAH PROPERTY givesBonus
-  const makananData = {
-    'nasi-telur': {
-      nama: 'Nasi + Telur',
-      energy: +30,
-      givesBonus: true, // BERI BONUS
-      message:
-        'Pilihan bagus! 🥚 Telur kaya zat besi dan protein yang membantu melawan anemia',
-      type: 'positive',
-      popup:
-        'Anemia terjadi karena kekurangan zat besi. Yuk, mulai kenali penyebabnya!',
-    },
-    roti: {
-      nama: 'Roti Gandum',
-      energy: +15,
-      givesBonus: true, // BERI BONUS
-      message: 'Baik! 🌾 Roti gandum memberikan energi stabil dan serat',
-      type: 'positive',
-      popup:
-        'Zat besi dari tumbuhan lebih sulit diserap tubuh. Konsumsi dengan vitamin C!',
-    },
-    'mie-instan': {
-      nama: 'Mie Instan',
-      energy: -20,
-      givesBonus: false, // TIDAK BERI BONUS
-      message:
-        'Hati-hati! 🚫 Mie instan kurang zat gizi penting untuk melawan anemia',
-      type: 'negative',
-      popup: 'Makanan instan biasanya rendah zat besi. Pilih makanan alami!',
-    },
-  };
+    // Reset character selection
+    characterCards.forEach((card) => {
+      card.classList.remove('selected', 'anonymous-selected');
+    });
 
-  // State variables
-  let currentKuisIndex = 0;
-  let score = 0;
-  let energy = 50;
-  let selectedFood = null;
-  let bonusPengetahuan = 0;
-  let jumlahPilihanSehat = 0; // TAMBAH: Hitung pilihan sehat
+    // Auto-select first character by default
+    if (characterCards.length > 0) {
+      characterCards[0].click();
+    }
 
-  // Initialize the game
-  initGame();
+    isAnonymous = false;
+    validateForm();
+  }
 
-  function initGame() {
-    // Opening animation sequence
-    setTimeout(() => {
-      containerOpening.style.transform = 'translateY(-100vh)';
-      containerOpening.style.transition = 'transform 1.5s ease';
+  // Character Selection
+  characterCards.forEach((card) => {
+    card.addEventListener('click', function () {
+      // Remove previous selection
+      characterCards.forEach((c) =>
+        c.classList.remove('selected', 'anonymous-selected')
+      );
 
+      // Add selection to clicked card
+      this.classList.add('selected');
+      if (isAnonymous) {
+        this.classList.add('anonymous-selected');
+      }
+      selectedCharacter = this.dataset.character;
+
+      // Validate form
+      validateForm();
+
+      // Play selection sound effect
+      playSelectionSound();
+    });
+  });
+
+  // Form submission
+  userForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (isFormValid) {
+      startGame();
+    }
+  });
+
+  // Anonymous Checkbox
+  anonymousCheckbox.addEventListener('change', function () {
+    isAnonymous = this.checked;
+
+    if (isAnonymous) {
+      // Anonymous mode
+      usernameInput.disabled = true;
+      usernameInput.removeAttribute('required');
+      usernameInput.value = '';
+      anonymousInfo.style.display = 'block';
+
+      // Add anonymous style to selected character
+      characterCards.forEach((card) => {
+        if (card.classList.contains('selected')) {
+          card.classList.add('anonymous-selected');
+        }
+      });
+    } else {
+      // Normal mode
+      usernameInput.disabled = false;
+      usernameInput.setAttribute('required', '');
+      usernameInput.value = '';
+      anonymousInfo.style.display = 'none';
+
+      // Remove anonymous style
+      characterCards.forEach((card) => {
+        card.classList.remove('anonymous-selected');
+      });
+
+      // Focus on username input
       setTimeout(() => {
-        sceneOpening.style.opacity = '1';
-        startOpeningScene();
-      }, 1600);
-    }, 2000);
-  }
+        usernameInput.focus();
+      }, 300);
+    }
 
-  function startOpeningScene() {
-    // Animate characters entering
-    setTimeout(() => {
-      nisa.classList.add('slide-nisa');
-      guru.classList.add('slide-guru');
-    }, 500);
+    validateForm();
+  });
 
-    // Start dialog typewriter effect
-    setTimeout(() => {
-      showDialog();
-    }, 1500);
+  // Username Input validation
+  usernameInput.addEventListener('input', function () {
+    validateForm();
 
-    // Show start button after dialog
-    setTimeout(() => {
-      btnStart.classList.remove('btn-hidden');
-      btnStart.style.opacity = '1';
-      btnStart.style.transition = 'opacity 0.8s ease';
-    }, 12000);
-  }
+    // Real-time validation feedback
+    if (!isAnonymous) {
+      const username = this.value.trim();
 
-  function showDialog() {
-    const dialogLines = [
-      'NISA: "Aduh... kepala pusing sekali. Kenapa ya aku sering merasa lemas dan sulit konsentrasi di sekolah?"',
-      'GURU UKS: "Nisa, gejala yang kamu alami seperti pucat, lemas, dan pusing bisa jadi tanda anemia. Yuk kita pelajari bersama!"',
-    ];
-
-    typeWriterMultiple(dialogLines, 40, 1000);
-  }
-
-  function typeWriterMultiple(lines, speed = 40, lineDelay = 800) {
-    let lineIndex = 0;
-    let charIndex = 0;
-
-    teksOpening.innerHTML = '';
-
-    function typeLine() {
-      if (lineIndex < lines.length) {
-        if (charIndex === 0 && lineIndex > 0) {
-          teksOpening.innerHTML += '<br><br>';
-        }
-
-        if (charIndex < lines[lineIndex].length) {
-          const currentChar = lines[lineIndex].charAt(charIndex);
-
-          // Add bold styling for character names
-          if (charIndex === 0) {
-            teksOpening.innerHTML += '<strong>';
-          }
-
-          teksOpening.innerHTML += currentChar;
-
-          if (currentChar === ':' && charIndex < 10) {
-            teksOpening.innerHTML += '</strong>';
-          }
-
-          charIndex++;
-          setTimeout(typeLine, speed);
-        } else {
-          lineIndex++;
-          charIndex = 0;
-          setTimeout(typeLine, lineDelay);
-        }
+      if (username.length === 0) {
+        showValidationMessage('Nama tidak boleh kosong', 'error');
+      } else if (username.length > 15) {
+        showValidationMessage('Nama maksimal 15 karakter', 'error');
+      } else {
+        showValidationMessage('Nama tersedia', 'success');
       }
     }
-    typeLine();
+  });
+
+  // Username Input blur for additional validation
+  usernameInput.addEventListener('blur', function () {
+    if (!isAnonymous) {
+      const username = this.value.trim();
+      if (username.length > 0 && username.length <= 15) {
+        this.style.borderColor = '#5662e7';
+        this.style.background = '#f0fff4';
+      } else {
+        this.style.borderColor = '#e9ecef';
+        this.style.background = 'white';
+      }
+    }
+  });
+
+  // Function untuk update input style
+  function updateInputStyle() {
+    if (usernameInput.disabled) {
+      usernameInput.classList.remove(
+        'username-input-focused',
+        'username-input-valid',
+        'username-input-invalid'
+      );
+      usernameInput.classList.add('username-input-disabled');
+    } else if (document.activeElement === usernameInput) {
+      usernameInput.classList.remove(
+        'username-input-valid',
+        'username-input-invalid',
+        'username-input-disabled'
+      );
+      usernameInput.classList.add('username-input-focused');
+    } else {
+      const username = usernameInput.value.trim();
+      usernameInput.classList.remove(
+        'username-input-focused',
+        'username-input-disabled'
+      );
+
+      if (username.length > 0 && username.length <= 15) {
+        usernameInput.classList.add('username-input-valid');
+        usernameInput.classList.remove('username-input-invalid');
+      } else {
+        usernameInput.classList.add('username-input-invalid');
+        usernameInput.classList.remove('username-input-valid');
+      }
+    }
   }
 
-  // Event Listeners
-  btnStart.addEventListener('click', startKuis);
+  // Event listeners
+  usernameInput.addEventListener('focus', function () {
+    updateInputStyle();
+  });
 
-  function startKuis() {
-    // Hide opening scene
-    sceneOpening.style.opacity = '0';
+  usernameInput.addEventListener('blur', function () {
+    updateInputStyle();
+  });
 
-    setTimeout(() => {
-      sceneOpening.style.display = 'none';
-      sceneKuis.style.display = 'block';
-      loadSoalKuis(0);
-    }, 800);
-  }
+  usernameInput.addEventListener('input', function () {
+    updateInputStyle();
+    validateForm();
+  });
 
-  function loadSoalKuis(index) {
-    const soal = kuisData[index];
-    const progress = ((index + 1) / kuisData.length) * 100;
+  anonymousCheckbox.addEventListener('change', function () {
+    isAnonymous = this.checked;
 
-    // Update progress
-    document.getElementById('progress-fill').style.width = `${progress}%`;
-    document.getElementById('progress-text').textContent = `${index + 1}/${
-      kuisData.length
-    }`;
+    if (isAnonymous) {
+      usernameInput.disabled = true;
+      usernameInput.value = '';
+      anonymousInfo.style.display = 'block';
+    } else {
+      usernameInput.disabled = false;
+      usernameInput.value = '';
+      anonymousInfo.style.display = 'none';
+      setTimeout(() => {
+        usernameInput.focus();
+        updateInputStyle();
+      }, 300);
+    }
 
-    // Create question HTML
-    const kuisContent = document.getElementById('kuis-content');
-    kuisContent.innerHTML = `
-      <div class="soal-kuis slide-up">
-        <h3>${soal.soal}</h3>
-        <div class="opsi-jawaban">
-          ${soal.opsi
-            .map(
-              (opsi, i) => `
-            <label>
-              <input type="radio" name="jawaban" value="${i}">
-              <span class="opsi-text">${String.fromCharCode(
-                65 + i
-              )}. ${opsi}</span>
-            </label>
-          `
-            )
-            .join('')}
-        </div>
-      </div>
-    `;
+    updateInputStyle();
+    validateForm();
+  });
 
-    // Update navigation buttons
-    const btnPrev = document.getElementById('btn-prev');
-    const btnNext = document.getElementById('btn-next');
+  // Check focus state periodically (fallback)
+  setInterval(() => {
+    updateInputStyle();
+  }, 100);
 
-    btnPrev.style.display = index === 0 ? 'none' : 'block';
-    btnPrev.classList.toggle('btn-hidden', index === 0);
+  // Start Button
+  startButton.addEventListener('click', function () {
+    userForm.requestSubmit();
+  });
 
-    btnNext.textContent =
-      index === kuisData.length - 1 ? 'Selesai 🎉' : 'Selanjutnya ➡';
+  function validateForm() {
+    const username = usernameInput.value.trim();
 
-    // Add event listeners for navigation
-    btnPrev.onclick = () => navigateKuis(-1);
-    btnNext.onclick = () => navigateKuis(1);
-  }
-
-  function navigateKuis(direction) {
-    const selectedAnswer = document.querySelector(
-      'input[name="jawaban"]:checked'
-    );
-
-    if (!selectedAnswer && direction === 1) {
-      alert('Pilih jawaban terlebih dahulu!');
+    // Check character selection
+    if (!selectedCharacter) {
+      isFormValid = false;
+      showValidationMessage('Pilih karakter terlebih dahulu', 'error');
       return;
     }
 
-    // Check answer if moving forward
-    if (direction === 1 && selectedAnswer) {
-      const isCorrect =
-        parseInt(selectedAnswer.value) === kuisData[currentKuisIndex].jawaban;
-      if (isCorrect) {
-        score++;
+    // Check username based on anonymous mode
+    if (isAnonymous) {
+      isFormValid = true;
+      showValidationMessage('Siap bermain sebagai anonymous!', 'success');
+    } else {
+      if (username.length === 0) {
+        isFormValid = false;
+        showValidationMessage('Nama tidak boleh kosong', 'error');
+      } else if (username.length > 15) {
+        isFormValid = false;
+        showValidationMessage('Nama maksimal 15 karakter', 'error');
+      } else {
+        isFormValid = true;
+        showValidationMessage('Form valid, siap bermain!', 'success');
       }
     }
 
-    currentKuisIndex += direction;
+    updateStartButtonState();
+  }
 
-    if (currentKuisIndex < kuisData.length) {
-      loadSoalKuis(currentKuisIndex);
+  function showValidationMessage(message, type) {
+    validationMessage.textContent = message;
+    validationMessage.className = 'validation-message';
+
+    if (type === 'error') {
+      validationMessage.classList.add('validation-error');
+    } else if (type === 'success') {
+      validationMessage.classList.add('validation-success');
+    }
+  }
+
+  function updateStartButtonState() {
+    if (isFormValid) {
+      startButton.disabled = false;
+
+      const finalUsername = isAnonymous
+        ? 'Petualang FeSmart'
+        : usernameInput.value.trim();
+      usernameInfo.innerHTML = `${finalUsername}`;
     } else {
-      // Move to sarapan scene
-      showSarapanScene();
+      startButton.disabled = true;
+      startButton.textContent = 'Mulai Petualangan';
     }
   }
 
-  function showSarapanScene() {
-    sceneKuis.style.display = 'none';
-    sceneSarapan.style.display = 'block';
-    updateEnergyBar();
-
-    // Reset selection state
-    selectedFood = null;
-    jumlahPilihanSehat = 0;
-    bonusPengetahuan = 0;
-
-    // Add event listeners for food cards
-    document.querySelectorAll('.food-card').forEach((card) => {
-      card.addEventListener('click', function () {
-        selectFood(this);
-      });
-    });
+  function playSelectionSound() {
+    // Optional: Add sound effect for character selection
   }
 
-  function selectFood(card) {
-    // Toggle selection (bisa pilih multiple)
-    card.classList.toggle('selected');
-    selectedFood = card.dataset.food;
+  function startGame() {
+    if (!isFormValid || !selectedCharacter) return;
 
-    const food = makananData[selectedFood];
+    // Show loading animation
+    loadingContainer.classList.add('show');
 
-    // Hitung ulang jumlah pilihan sehat
-    jumlahPilihanSehat = document.querySelectorAll(
-      '.food-card.selected[data-energy*="+"]'
-    ).length;
-    bonusPengetahuan = jumlahPilihanSehat;
+    // Get form data
+    const formData = new FormData(userForm);
+    const isAnonymous = formData.get('anonymous') === 'on';
+    const username = isAnonymous
+      ? 'Petualang FeSmart'
+      : formData.get('username').trim();
 
-    // Show result
-    showFoodResult();
-  }
+    // Prepare data for localStorage/API
+    const userData = {
+      username: username,
+      character: selectedCharacter, // 'siti' atau 'sari'
+      characterName: getCharacterName(selectedCharacter), // Nama karakter
+      characterImage: getCharacterImage(selectedCharacter, 'normal'), // Path gambar
+      isAnonymous: isAnonymous,
+      startTime: new Date().toISOString(),
+      progress: {
+        hari1: { completed: false, score: 0, knowledge: 0, compliance: 0 },
+        hari2: { completed: false, score: 0, knowledge: 0, compliance: 0 },
+        hari3: { completed: false, score: 0, knowledge: 0, compliance: 0 },
+        hari4: { completed: false, score: 0, knowledge: 0, compliance: 0 },
+        hari5: { completed: false, score: 0, knowledge: 0, compliance: 0 },
+        hari6: { completed: false, score: 0, knowledge: 0, compliance: 0 },
+        hari7: { completed: false, score: 0, knowledge: 0, compliance: 0 },
+      },
+      totalKnowledge: 0,
+      totalCompliance: 0,
+      achievements: [],
+    };
 
-  function showFoodResult() {
-    // Hitung total energy dari semua makanan yang dipilih
-    let totalEnergyChange = 0;
-    document.querySelectorAll('.food-card.selected').forEach((card) => {
-      const food = makananData[card.dataset.food];
-      totalEnergyChange += food.energy;
-    });
+    // Save to localStorage
+    localStorage.setItem('fesmart_user', JSON.stringify(userData));
 
-    // Update energy
-    energy = Math.max(0, Math.min(100, energy + totalEnergyChange));
-    updateEnergyBar();
-
-    // Show message
-    const resultMessage = document.getElementById('result-message');
-
-    let message = '';
-    if (jumlahPilihanSehat > 0) {
-      message = `Pilihan bagus! Kamu memilih ${jumlahPilihanSehat} makanan sehat. Bonus +${bonusPengetahuan} pengetahuan!`;
-      resultMessage.className = 'result-message result-positive';
-    } else {
-      message = 'Pilih makanan sehat untuk mendapatkan bonus pengetahuan!';
-      resultMessage.className = 'result-message result-negative';
-    }
-
-    resultMessage.innerHTML = message;
-
-    // Tampilkan popup edukasi untuk makanan terakhir yang dipilih
-    if (selectedFood) {
-      const food = makananData[selectedFood];
-      showEdukasiPopup(food.popup);
-    }
-
-    // Show continue button
-    const btnLanjut = document.getElementById('btn-lanjut');
-    btnLanjut.classList.remove('btn-hidden');
-    btnLanjut.style.opacity = '1';
-    btnLanjut.style.transition = 'opacity 0.8s ease';
-
-    btnLanjut.onclick = showHasilAkhir;
-  }
-
-  function showEdukasiPopup(message) {
-    // Create popup element
-    const popup = document.createElement('div');
-    popup.className = 'edukasi-popup';
-    popup.innerHTML = `
-      <div class="popup-content">
-        <div class="popup-header">
-          <span class="popup-icon">💡</span>
-          <h3>Fakta Penting!</h3>
-        </div>
-        <div class="popup-message">
-          <p>${message}</p>
-        </div>
-        <button class="popup-close">Mengerti</button>
-      </div>
-    `;
-
-    document.body.appendChild(popup);
-
-    // Add event listener untuk close button
-    const closeBtn = popup.querySelector('.popup-close');
-    closeBtn.addEventListener('click', function () {
-      popup.style.animation = 'fadeOut 0.3s ease';
-      setTimeout(() => {
-        document.body.removeChild(popup);
-      }, 300);
-    });
-
-    // Click outside to close
-    popup.addEventListener('click', function (e) {
-      if (e.target === popup) {
-        popup.style.animation = 'fadeOut 0.3s ease';
+    // Simulate API call
+    simulateAPICall(userData)
+      .then(() => {
         setTimeout(() => {
-          document.body.removeChild(popup);
-        }, 300);
-      }
+          window.location.href = 'hari-1.html';
+        }, 1000);
+      })
+      .catch((error) => {
+        console.error('Error saving user data:', error);
+        showValidationMessage('Gagal menyimpan data. Coba lagi.', 'error');
+        loadingContainer.classList.remove('show');
+      });
+  }
+
+  function getCharacterName(characterId) {
+    const characterNames = {
+      siti: 'Siti',
+      sari: 'Sari',
+    };
+    return characterNames[characterId] || 'Karakter';
+  }
+
+  function getCharacterImage(characterId, emotion = 'normal') {
+    const characterImages = {
+      siti: {
+        normal: 'assets/images/characters/siti-normal.png',
+        murung: 'assets/images/characters/siti-murung.png',
+        senang: 'assets/images/characters/siti-senang.png',
+      },
+      sari: {
+        normal: 'assets/images/characters/sari-normal.png',
+        murung: 'assets/images/characters/sari-murung.png',
+        senang: 'assets/images/characters/sari-senang.png',
+      },
+    };
+    return (
+      characterImages[characterId]?.[emotion] ||
+      characterImages[characterId]?.['normal'] ||
+      'assets/images/characters/default.png'
+    );
+  }
+
+  function simulateAPICall(userData) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        if (Math.random() > 0.05) {
+          resolve({ success: true, data: userData });
+        } else {
+          reject(new Error('Network error'));
+        }
+      }, 500);
     });
   }
 
-  function updateEnergyBar() {
-    const energyFill = document.getElementById('energy-fill');
-    const energyText = document.getElementById('energy-text');
+  // Initialize form - RESET SETIAP KALI LOAD
+  resetForm();
 
-    energyFill.style.width = `${energy}%`;
-    energyText.textContent = `${energy}%`;
+  // Optional: Add reset button
+  // addResetButton();
 
-    // Update color based on energy
-    if (energy < 30) {
-      energyFill.style.background = 'linear-gradient(90deg, #FF3B30, #FF9500)';
-    } else if (energy < 70) {
-      energyFill.style.background = 'linear-gradient(90deg, #FF9500, #FFCC00)';
-    } else {
-      energyFill.style.background = 'linear-gradient(90deg, #4CD964, #2E8B57)';
+  // Add interactive effects
+  usernameInput.addEventListener('focus', function () {
+    if (!isAnonymous) {
+      this.parentElement.style.transform = 'scale(1.02)';
     }
-  }
+  });
 
-  function showHasilAkhir() {
-    sceneSarapan.style.display = 'none';
-    sceneHasil.style.display = 'block';
-
-    // HITUNG TOTAL PENGETAHUAN
-    const totalPengetahuan = score + bonusPengetahuan;
-
-    // Tampilkan detail scoring
-    const hasilMessage = document.getElementById('hasil-message');
-    hasilMessage.innerHTML = `
-      <div class="score-detail">
-        <div class="score-item-detail">
-          <span class="score-label">Skor Kuis:</span>
-          <span class="score-value">${score}/${kuisData.length}</span>
-        </div>
-        ${
-          bonusPengetahuan > 0
-            ? `
-        <div class="score-item-detail bonus-item">
-          <span class="score-label">Bonus Makanan Bergizi:</span>
-          <span class="score-value bonus-value">+${bonusPengetahuan}</span>
-        </div>
-        `
-            : ''
-        }
-        <div class="score-item-detail total-item">
-          <span class="score-label">Total Pengetahuan:</span>
-          <span class="score-value total-value">${totalPengetahuan}</span>
-        </div>
-        <div class="score-item-detail">
-          <span class="score-label">Energi Tersisa:</span>
-          <span class="score-value">${energy}%</span>
-        </div>
-      </div>
-    `;
-
-    // Feedback
-    const feedbackMessage = document.createElement('div');
-    feedbackMessage.className = 'feedback-message';
-
-    if (totalPengetahuan >= 3 && energy > 70) {
-      feedbackMessage.innerHTML =
-        '🎉 <strong>Luar biasa!</strong> Kamu benar-benar memahami cara melawan anemia!';
-      feedbackMessage.style.color = '#4CD964';
-    } else if (totalPengetahuan >= 2) {
-      feedbackMessage.innerHTML =
-        '👍 <strong>Bagus!</strong> Terus belajar tentang anemia!';
-      feedbackMessage.style.color = '#FF9500';
-    } else {
-      feedbackMessage.innerHTML =
-        '💪 <strong>Jangan menyerah!</strong> Terus berusaha memahami anemia!';
-      feedbackMessage.style.color = '#FF3B30';
-    }
-
-    hasilMessage.appendChild(feedbackMessage);
-
-    // Ubah tombol restart menjadi lanjut ke hari 2
-    const btnLanjut = document.getElementById('btn-restart');
-    btnLanjut.textContent = 'Lanjut ke Tahap Berikutnya';
-    btnLanjut.onclick = lanjutKeHari2;
-  }
-
-  // TAMBAH: Function untuk lanjut ke Hari 2
-  function lanjutKeHari2() {
-    // Redirect ke halaman hari 2
-    window.location.href = 'hari-2.html';
-  }
+  usernameInput.addEventListener('blur', function () {
+    this.parentElement.style.transform = 'scale(1)';
+  });
 });

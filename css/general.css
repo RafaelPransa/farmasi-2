@@ -1,8 +1,265 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+html,
+body,
+div,
+span,
+applet,
+object,
+iframe,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+blockquote,
+pre,
+a,
+abbr,
+acronym,
+address,
+big,
+cite,
+code,
+del,
+dfn,
+em,
+img,
+ins,
+kbd,
+q,
+s,
+samp,
+small,
+strike,
+strong,
+sub,
+sup,
+tt,
+var,
+b,
+u,
+i,
+center,
+dl,
+dt,
+dd,
+ol,
+ul,
+li,
+fieldset,
+form,
+label,
+legend,
+table,
+caption,
+tbody,
+tfoot,
+thead,
+tr,
+th,
+td,
+article,
+aside,
+canvas,
+details,
+embed,
+figure,
+figcaption,
+footer,
+header,
+hgroup,
+menu,
+nav,
+output,
+ruby,
+section,
+summary,
+time,
+mark,
+audio,
+video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+menu,
+nav,
+section {
+  display: block;
+}
+body {
+  line-height: 1;
+}
+ol,
+ul {
+  list-style: none;
+}
+blockquote,
+q {
+  quotes: none;
+}
+blockquote:before,
+blockquote:after,
+q:before,
+q:after {
+  content: '';
+  content: none;
+}
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+/* Font Poppins */
+
+.poppins-thin {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 100;
+  font-style: normal;
+}
+
+.poppins-extralight {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 200;
+  font-style: normal;
+}
+
+.poppins-light {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 300;
+  font-style: normal;
+}
+
+.poppins-regular {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.poppins-medium {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+  font-style: normal;
+}
+
+.poppins-semibold {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  font-style: normal;
+}
+
+.poppins-bold {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-style: normal;
+}
+
+.poppins-extrabold {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 800;
+  font-style: normal;
+}
+
+.poppins-black {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 900;
+  font-style: normal;
+}
+
+.poppins-thin-italic {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 100;
+  font-style: italic;
+}
+
+.poppins-extralight-italic {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 200;
+  font-style: italic;
+}
+
+.poppins-light-italic {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 300;
+  font-style: italic;
+}
+
+.poppins-regular-italic {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 400;
+  font-style: italic;
+}
+
+.poppins-medium-italic {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+  font-style: italic;
+}
+
+.poppins-semibold-italic {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  font-style: italic;
+}
+
+.poppins-bold-italic {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-style: italic;
+}
+
+.poppins-extrabold-italic {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 800;
+  font-style: italic;
+}
+
+.poppins-black-italic {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 900;
+  font-style: italic;
+}
+
+:root {
+  /* MAIN COLOR PALETTE */
+  --primary: #4a90e2; /* Tombol utama, header */
+  --secondary: #50e3c2; /* Progress bars, positive elements */
+  --accent: #ff6b6b; /* Important buttons, alerts */
+  --success: #4caf50; /* Correct answers, health boost */
+  --warning: #ff9800; /* Warnings, low energy */
+  --background-gradient-1: linear-gradient(135deg, #43b077 0%, #06b2bb 100%);
+  --background-gradient-2: linear-gradient(135deg, #08b9ff 0%, #5662e7 100%);
+  --card-bg: #ffffff; /* Card/container background */
+  --text-primary: #63625e; /* Main text */
+  --text-header: #5662e7;
+  --text-secondary: #5d6d7e; /* Secondary text */
+  --border-color: #43b077;
+  --font-poppins: 'Poppins', sans-serif;
+}
+
+/* Start styling */
+
 body {
   font-family: var(--font-poppins);
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--background-gradient-1);
   min-height: 100vh;
   overflow-x: hidden;
+  color: var(--text-primary);
 }
 
 /* Opening Scene */
@@ -12,7 +269,7 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--background-gradient-1);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -50,13 +307,25 @@ body {
   width: 100%;
   height: 100%;
   background: url(../assets/backgrounds/school.jpg);
-  /* background-repeat: no-repeat; */
   background-size: cover;
   display: flex;
   align-items: center;
   justify-content: space-between;
   opacity: 0;
   transition: opacity 0.8s ease;
+}
+
+.scene-opening::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url(../assets/backgrounds/school.jpg);
+  background-size: cover;
+  filter: brightness(0.3); /* Filter hanya pada background */
+  z-index: -1;
 }
 
 .character {
@@ -108,7 +377,6 @@ body {
   transform: translateY(0);
   transition: all 1s ease-in, box-shadow 0.3s ease-in;
 }
-
 .btn-secondary:hover {
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
@@ -116,22 +384,47 @@ body {
 
 #btn-start,
 .btn-primary {
-  background: linear-gradient(135deg, #4cd964, #2e8b57);
+  background: rgba(76, 217, 100, 1);
+  border: 2px solid rgba(139, 249, 254, 0.2);
   color: white;
-  border: none;
   padding: 15px 20px;
-  min-width: 200px;
   font-size: 1.2em;
   border-radius: 50px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 5px 15px rgba(76, 217, 100, 0.1);
+  position: relative;
+  box-sizing: border-box;
+  overflow: hidden; /* Penting untuk contain pseudo-element */
+  transition: all 0.5s ease !important;
+  z-index: 1;
+}
+
+#btn-start::before,
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: -10%;
+  width: 120%;
+  height: 140%;
+  background: rgb(70, 255, 101);
+  border-top-left-radius: 100px;
+  border-top-right-radius: 100px;
+  transform: scaleY(0);
+  transform-origin: bottom center;
+  transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  z-index: -1;
 }
 
 #btn-start:hover,
 .btn-primary:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 5px 15px rgba(165, 255, 180, 0.8);
+  transform: translateY(-2px);
+}
+
+#btn-start:hover::before,
+.btn-primary:hover::before {
+  transform: scaleY(1); /* Muncul dari bawah */
 }
 
 #btn-start:active,
@@ -155,7 +448,7 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--background-gradient-1);
   z-index: 1000;
   overflow-y: auto;
 }
@@ -164,9 +457,9 @@ body {
 .sarapan-container,
 .hasil-container {
   max-width: 900px;
-  margin: 0 auto 4rem;
-  padding: 40px 20px;
-  height: 100vh;
+  margin: 0 auto;
+  padding: 40px 20px 0;
+  height: max-content;
   display: flex;
   flex-direction: column;
 }
@@ -175,7 +468,6 @@ body {
 .sarapan-header {
   text-align: center;
   color: white;
-  margin-bottom: 30px;
 }
 
 .kuis-header h2,
@@ -223,7 +515,8 @@ body {
 
 /* Soal Kuis */
 .kuis-content {
-  flex: 1;
+  margin-bottom: 3rem;
+  margin-top: 3rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -247,7 +540,9 @@ body {
 
 .opsi-jawaban {
   display: grid;
-  gap: 15px;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 20px;
 }
 
 .opsi-jawaban label {
@@ -284,11 +579,9 @@ body {
 .navigation-buttons {
   display: flex;
   justify-content: space-between;
-  margin-top: 30px;
 }
 
 .btn-nav {
-  margin-top: 1rem;
   padding: 12px 30px;
   border: none;
   border-radius: 25px;
