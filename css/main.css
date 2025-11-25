@@ -6,7 +6,9 @@
   width: 100%;
   height: 100%;
   overflow-y: auto;
-  padding: 20px;
+  background: linear-gradient(rgba(135, 206, 235, 0.8)),
+    url(../assets/backgrounds/class.jpg);
+  background-size: cover;
 }
 
 .dashboard-container {
@@ -252,15 +254,6 @@
 }
 
 /* Required field indicator */
-.input-container::after {
-  content: '*';
-  color: var(--danger);
-  position: absolute;
-  right: 15px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 1.2em;
-}
 
 .input-container:has(#username-input:disabled)::after {
   display: none;
@@ -325,8 +318,8 @@
 
 /* Start Button */
 .btn-start {
-  background: linear-gradient(135deg, var(--bold-red), var(--bold-blue));
-  color: white;
+  background: #fff;
+  color: var(--secondary-blue);
   border: none;
   padding: 20px 50px;
   font-size: 1.5em;
@@ -337,12 +330,35 @@
   display: block;
   margin: 0 auto;
   width: 300px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 10px 25px rgba(255, 255, 255, 0.2);
+  overflow: hidden;
+  position: relative;
+}
+
+.btn-start::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: -10%;
+  width: 120%;
+  height: 140%;
+  background: rgb(27, 168, 255);
+  border-top-left-radius: 100px;
+  border-top-right-radius: 100px;
+  transform: scaleY(0);
+  transform-origin: bottom center;
+  transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  z-index: -1;
+}
+
+.btn-start:hover::before {
+  transform: scaleY(1);
 }
 
 .btn-start:hover:not(:disabled) {
   transform: translateY(-3px) scale(1.05);
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 15px 35px rgba(255, 255, 255, 0.9);
+  color: #fff;
 }
 
 .btn-start:active:not(:disabled) {
@@ -363,7 +379,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: var(--gradient-primary);
+  background: lightskyblue;
   display: none;
   align-items: center;
   justify-content: center;

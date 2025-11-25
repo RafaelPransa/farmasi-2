@@ -385,8 +385,8 @@ document.addEventListener('DOMContentLoaded', function () {
       const buttonContainer = document.querySelector('.simulasi-content');
 
       // Hapus tombol lanjutkan sebelumnya jika ada
-      const existingBtn = buttonContainer.querySelector(
-        '.btn-primary[onclick="showHasilAkhir()"]'
+      const existingBtn = document.getElementById(
+        'btn-primary[onclick="showHasilAkhir()"]'
       );
       if (existingBtn) {
         existingBtn.remove();
