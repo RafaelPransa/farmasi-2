@@ -46,6 +46,7 @@ body {
 }
 
 .simulasi-header {
+  margin-top: 40px;
   text-align: center;
   color: white;
   margin-bottom: 30px;
@@ -63,11 +64,14 @@ body {
   gap: 40px;
   color: white;
   font-size: 1.2em;
+  height: 100px;
+  text-align: center;
+  align-items: center;
 }
 
 .stat-item {
   background: rgba(255, 255, 255, 0.2);
-  padding: 15px 25px;
+  padding: 25px;
   border-radius: 15px;
   backdrop-filter: blur(10px);
 }
@@ -313,11 +317,10 @@ body {
   }
 
   #character-teman.slide-teman {
-    transform: translateX(0) translateY(50px);
+    transform: translateX(97%) translateY(-40%);
   }
 
   .stats-container {
-    flex-direction: column;
     gap: 15px;
   }
 
@@ -333,5 +336,15 @@ body {
   .btn-large {
     padding: 15px 30px;
     font-size: 1.2em;
+  }
+
+  .simulasi-header h2 {
+    font-size: 26px;
+  }
+}
+
+@media (max-width: 576px) {
+  #character-teman.slide-teman {
+    transform: translateX(67%) translateY(-40%);
   }
 }

@@ -386,4 +386,5 @@ document.addEventListener('DOMContentLoaded', function () {
   usernameInput.addEventListener('blur', function () {
     this.parentElement.style.transform = 'scale(1)';
   });
+
 });

@@ -83,7 +83,7 @@
 .character-card.selected {
   border-color: var(--secondary-red);
   background: #f0fff4;
-  transform: scale(1.05);
+  transform: scale(1.01);
   filter: grayscale(0);
 }
 
@@ -370,6 +370,7 @@
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
+  color: #000;
 }
 
 /* Loading Animation */
@@ -464,5 +465,18 @@
   .character-selection,
   .username-section {
     padding: 20px;
+  }
+
+  .character-card {
+    box-sizing: border-box;
+    width: 100%;
+  }
+}
+
+@media (max-width: 576px) {
+  .character-selection h2,
+  .username-section h2 {
+    font-size: 22px;
+    font-weight: 600;
   }
 }

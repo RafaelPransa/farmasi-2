@@ -22,6 +22,7 @@ body {
 }
 
 /* Food Options */
+
 .food-options {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -73,7 +74,7 @@ body {
   font-size: 1.1em;
 }
 
-.food-card[data-energy*='-'] .energy-change {
+.food-card[data-energy='-'] .energy-change {
   color: #ff3b30;
 }
 
@@ -88,6 +89,11 @@ body {
   cursor: pointer;
 }
 
+.food-card[data-food='mie-instan']:hover,
+.food-card[data-food='mie-instan'].selected {
+  border-color: #ff3b30;
+}
+
 .typewriter {
   overflow: hidden;
   border-right: 3px solid #667eea;
@@ -95,19 +101,40 @@ body {
   animation: typewriter 3s steps(40, end), blink 0.8s infinite;
 }
 
-
-
 /* Responsive Design */
 @media (max-width: 768px) {
-  #character-main.slide-main {
-    transform: translateX(0) translateY(-50px);
-  }
-
   #character-guru.slide-guru {
-    transform: translateX(0) translateY(50px);
+    transform: translateX(97%) translateY(-40%);
   }
 
   .food-options {
     grid-template-columns: 1fr;
+  }
+
+}
+
+@media (max-width: 576px) {
+  #character-guru.slide-guru {
+    transform: translateX(67%) translateY(-40%);
+  }
+
+  .sarapan-header h2,
+  .hasil-card h2 {
+    font-size: 26px;
+  }
+
+  .food-icon {
+    font-size: 3em;
+  }
+
+  .food-card h3 {
+    font-size: 16;
+  }
+  .food-card p {
+    font-size: 14;
+  }
+
+  .energy-change {
+    font-size: 14px;
   }
 }

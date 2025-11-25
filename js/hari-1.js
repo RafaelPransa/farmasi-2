@@ -108,8 +108,7 @@ document.addEventListener('DOMContentLoaded', function () {
   // State variables
   let currentKuisIndex = 0;
   let score = 0;
-  let energy = 50;
-  let selectedFood = null;
+  let energy = 55;
   let bonusPengetahuan = 0;
   let jumlahPilihanSehat = 0;
 
@@ -293,14 +292,30 @@ document.addEventListener('DOMContentLoaded', function () {
   function showSarapanScene() {
     sceneKuis.style.display = 'none';
     sceneSarapan.style.display = 'block';
-    updateEnergyBar();
 
-    // Reset selection state
+    // Reset semua state dengan benar
     selectedFood = null;
     jumlahPilihanSehat = 0;
     bonusPengetahuan = 0;
+    energy = 55; // Reset energy ke nilai default
 
-    // Add event listeners for food cards
+    updateEnergyBar();
+
+    // Reset semua seleksi makanan
+    document.querySelectorAll('.food-card').forEach((card) => {
+      card.classList.remove('selected');
+    });
+
+    // Reset result message
+    const resultMessage = document.getElementById('result-message');
+    resultMessage.style.display = 'none';
+
+    // Sembunyikan tombol lanjut
+    const btnLanjut = document.getElementById('btn-lanjut');
+    btnLanjut.classList.add('btn-hidden');
+    btnLanjut.style.opacity = '0';
+
+    // Add event listeners untuk food cards
     document.querySelectorAll('.food-card').forEach((card) => {
       card.addEventListener('click', function () {
         selectFood(this);
@@ -309,61 +324,78 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function selectFood(card) {
-    // Toggle selection (bisa pilih multiple)
+    const foodId = card.dataset.food;
+    const food = makananData[foodId];
+
+    // Toggle selection
     card.classList.toggle('selected');
-    selectedFood = card.dataset.food;
 
-    const food = makananData[selectedFood];
+    // Jika makanan dipilih (bukan di-unselect)
+    if (card.classList.contains('selected')) {
+      selectedFood = foodId;
 
-    // Hitung ulang jumlah pilihan sehat
-    jumlahPilihanSehat = document.querySelectorAll(
-      '.food-card.selected[data-energy*="+"]'
-    ).length;
+      // Hitung ulang jumlah pilihan sehat HANYA jika makanan sehat
+      if (food.energy > 0) {
+        jumlahPilihanSehat++;
+      }
+
+      // Update energy
+      energy = Math.max(0, Math.min(100, energy + food.energy));
+      updateEnergyBar();
+
+      // Show result untuk makanan ini saja
+      showFoodResult(food);
+
+      // Tampilkan popup edukasi
+      showEdukasiPopup(food.popup);
+    } else {
+      // Jika makanan di-unselect, kurangi jumlah pilihan sehat jika makanan sehat
+      if (food.energy > 0) {
+        jumlahPilihanSehat = Math.max(0, jumlahPilihanSehat - 1);
+      }
+
+      // Kembalikan energy
+      energy = Math.max(0, Math.min(100, energy - food.energy));
+      updateEnergyBar();
+
+      // Reset selectedFood
+      selectedFood = null;
+    }
+
+    // Update bonus pengetahuan
     bonusPengetahuan = jumlahPilihanSehat;
-
-    // Show result
-    showFoodResult();
   }
 
-  function showFoodResult() {
-    // Hitung total energy dari semua makanan yang dipilih
-    let totalEnergyChange = 0;
-    document.querySelectorAll('.food-card.selected').forEach((card) => {
-      const food = makananData[card.dataset.food];
-      totalEnergyChange += food.energy;
-    });
-
-    // Update energy
-    energy = Math.max(0, Math.min(100, energy + totalEnergyChange));
-    updateEnergyBar();
-
-    // Show message
+  function showFoodResult(food) {
     const resultMessage = document.getElementById('result-message');
 
-    let message = '';
-    if (jumlahPilihanSehat > 0) {
-      message = `Pilihan bagus! Kamu memilih ${jumlahPilihanSehat} makanan sehat. Bonus +${bonusPengetahuan} pengetahuan!`;
+    // Tampilkan pesan berdasarkan makanan yang baru dipilih
+    if (food.energy > 0) {
+      resultMessage.innerHTML = food.message;
       resultMessage.className = 'result-message result-positive';
     } else {
-      message = 'Pilih makanan sehat untuk mendapatkan bonus pengetahuan!';
+      resultMessage.innerHTML = food.message;
       resultMessage.className = 'result-message result-negative';
     }
 
-    resultMessage.innerHTML = message;
+    resultMessage.style.display = 'block';
 
-    // Tampilkan popup edukasi untuk makanan terakhir yang dipilih
-    if (selectedFood) {
-      const food = makananData[selectedFood];
-      showEdukasiPopup(food.popup);
-    }
-
-    // Show continue button
+    // Show continue button hanya jika ada makanan yang dipilih
     const btnLanjut = document.getElementById('btn-lanjut');
-    btnLanjut.classList.remove('btn-hidden');
-    btnLanjut.style.opacity = '1';
-    btnLanjut.style.transition = 'opacity 0.8s ease';
+    const hasSelectedFood =
+      document.querySelectorAll('.food-card.selected').length > 0;
 
-    btnLanjut.onclick = showHasilAkhir;
+    if (hasSelectedFood) {
+      btnLanjut.classList.remove('btn-hidden');
+      btnLanjut.style.opacity = '1';
+      btnLanjut.style.transition = 'opacity 0.8s ease';
+      btnLanjut.addEventListener('click', function () {
+        showHasilAkhir();
+      });
+    } else {
+      btnLanjut.classList.add('btn-hidden');
+      btnLanjut.style.opacity = '0';
+    }
   }
 
   function showEdukasiPopup(message) {
@@ -490,11 +522,25 @@ document.addEventListener('DOMContentLoaded', function () {
     window.location.href = 'hari-2.html';
   }
 
-  // Redirect ke dashboard jika belum login
-  document.addEventListener('DOMContentLoaded', function () {
-    const userData = localStorage.getItem('fesmart_user');
-    if (!userData) {
-      window.location.href = 'index.html';
+  // Responsif
+  function checkWindowSize() {
+    const containerBtnStartDekstop = document.querySelector(
+      '.container-teks-opening'
+    );
+    const containerBtnStartMobile = document.getElementById(
+      'container-btn-mobile'
+    );
+    if (window.innerWidth <= 768) {
+      if (btnStart.parentNode === containerBtnStartDekstop) {
+        containerBtnStartMobile.append(btnStart);
+      }
+    } else {
+      if (btnStart.parentNode === containerBtnStartMobile) {
+        containerBtnStartDekstop.append(btnStart);
+      }
     }
-  });
+  }
+
+  checkWindowSize();
+  window.addEventListener('resize', checkWindowSize);
 });

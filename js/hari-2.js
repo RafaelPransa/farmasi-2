@@ -11,6 +11,9 @@ document.addEventListener('DOMContentLoaded', function () {
   const teksOpening = document.querySelector('.teks-opening');
   const btnStart = document.getElementById('btn-start');
   const btnBack = document.querySelector('.container-btn .btn-secondary');
+  const containerBtn = document.querySelector(
+    '.scene-opening .container-teks-opening .container-btn'
+  );
 
   // Load user data dari localStorage
   const userData = JSON.parse(localStorage.getItem('fesmart_user'));
@@ -94,6 +97,7 @@ document.addEventListener('DOMContentLoaded', function () {
   let timer;
   let timeLeft = 60;
   let gameCompleted = false;
+  let continueButtonCreated = false; // ⚠️ BARU: Flag untuk cek tombol sudah dibuat
 
   // Initialize the game
   initGame();
@@ -286,6 +290,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Reset simulasi state
     timeLeft = 60;
     gameCompleted = false;
+    continueButtonCreated = false; // ⚠️ BARU: Reset flag
 
     // Update stats display
     updateStatsDisplay();
@@ -373,27 +378,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Update stats display setelah perubahan Hb
     updateStatsDisplay();
-
-    // Show continue button setelah popup (tunggu 3 detik)
-    setTimeout(() => {
-      // Cek dulu apakah popup masih ada atau sudah ditutup user
-      const continueBtn = document.createElement('button');
-      continueBtn.className = 'btn-primary';
-      continueBtn.textContent = 'Lanjutkan';
-      continueBtn.onclick = showHasilAkhir;
-
-      const buttonContainer = document.querySelector('.simulasi-content');
-
-      // Hapus tombol lanjutkan sebelumnya jika ada
-      const existingBtn = document.getElementById(
-        'btn-primary[onclick="showHasilAkhir()"]'
-      );
-      if (existingBtn) {
-        existingBtn.remove();
-      }
-
-      buttonContainer.appendChild(continueBtn);
-    }, 3000);
   }
 
   function timeUp() {
@@ -418,26 +402,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Update stats
     updateStatsDisplay();
-
-    // Show continue button setelah popup
-    setTimeout(() => {
-      const continueBtn = document.createElement('button');
-      continueBtn.className = 'btn-primary';
-      continueBtn.textContent = 'Lanjutkan';
-      continueBtn.onclick = showHasilAkhir;
-
-      const buttonContainer = document.querySelector('.simulasi-content');
-
-      // Hapus tombol lanjutkan sebelumnya jika ada
-      const existingBtn = buttonContainer.querySelector(
-        '.btn-primary[onclick="showHasilAkhir()"]'
-      );
-      if (existingBtn) {
-        existingBtn.remove();
-      }
-
-      buttonContainer.appendChild(continueBtn);
-    }, 3000);
   }
 
   function updateStatsDisplay() {
@@ -445,43 +409,77 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('hb-value').textContent = `${hbLevel} g/dL`;
   }
 
-  function showEdukasiPopup(message) {
-    // Create popup element (gunakan fungsi yang sama dari hari-1)
+  function showFePopup(message, type = 'success') {
+    // Create popup element
     const popup = document.createElement('div');
-    popup.className = 'edukasi-popup';
+    popup.className = 'fe-popup';
+
+    const icon = type === 'success' ? '✅' : '❌';
+    const title = type === 'success' ? 'Berhasil!' : 'Perhatian!';
+
     popup.innerHTML = `
-      <div class="popup-content">
-        <div class="popup-header">
-          <span class="popup-icon">💡</span>
-          <h3>Fakta Penting!</h3>
-        </div>
-        <div class="popup-message">
-          <p>${message}</p>
-        </div>
-        <button class="popup-close">Mengerti</button>
+    <div class="fe-popup-content">
+      <div class="fe-popup-progress">
+        <div class="fe-popup-progress-bar"></div>
       </div>
-    `;
+      <div class="fe-popup-header">
+        <span class="fe-popup-icon">${icon}</span>
+        <h3>${title}</h3>
+      </div>
+      <div class="fe-popup-message">
+        ${message
+          .split('\n')
+          .map((line) => `<p>${line}</p>`)
+          .join('')}
+      </div>
+      <button class="fe-popup-close">Lanjutkan</button>
+    </div>
+  `;
 
     document.body.appendChild(popup);
 
-    // Add event listener untuk close button
-    const closeBtn = popup.querySelector('.popup-close');
+    // Start progress bar animation
+    const progressBar = popup.querySelector('.fe-popup-progress-bar');
+    setTimeout(() => {
+      progressBar.style.width = '100%';
+      progressBar.style.transition = 'width 5s linear';
+    }, 100);
+
+    // Auto continue setelah 5 detik
+    const autoHideTimer = setTimeout(() => {
+      if (popup.parentNode) {
+        hidePopup(popup);
+        showHasilAkhir();
+      }
+    }, 5000);
+
+    // Event listener untuk close button
+    const closeBtn = popup.querySelector('.fe-popup-close');
     closeBtn.addEventListener('click', function () {
-      popup.style.animation = 'fadeOut 0.3s ease';
-      setTimeout(() => {
-        document.body.removeChild(popup);
-      }, 300);
+      clearTimeout(autoHideTimer);
+      hidePopup(popup);
+      showHasilAkhir();
     });
 
     // Click outside to close
     popup.addEventListener('click', function (e) {
       if (e.target === popup) {
-        popup.style.animation = 'fadeOut 0.3s ease';
-        setTimeout(() => {
-          document.body.removeChild(popup);
-        }, 300);
+        clearTimeout(autoHideTimer);
+        hidePopup(popup);
+        showHasilAkhir();
       }
     });
+
+    return popup;
+  }
+
+  function hidePopup(popup) {
+    popup.style.animation = 'fadeOut 0.5s ease forwards';
+    setTimeout(() => {
+      if (popup.parentNode) {
+        document.body.removeChild(popup);
+      }
+    }, 500);
   }
 
   function showHasilAkhir() {
@@ -549,89 +547,26 @@ document.addEventListener('DOMContentLoaded', function () {
     window.location.href = 'index.html';
   }
 
-  function showFePopup(message, type = 'success') {
-    // Create popup element
-    const popup = document.createElement('div');
-    popup.className = 'fe-popup';
-
-    const icon = type === 'success' ? '✅' : '❌';
-    const title = type === 'success' ? 'Berhasil!' : 'Perhatian!';
-
-    popup.innerHTML = `
-    <div class="fe-popup-content">
-      <div class="fe-popup-progress">
-        <div class="fe-popup-progress-bar"></div>
-      </div>
-      <div class="fe-popup-header">
-        <span class="fe-popup-icon">${icon}</span>
-        <h3>${title}</h3>
-      </div>
-      <div class="fe-popup-message">
-        ${message
-          .split('\n')
-          .map((line) => `<p>${line}</p>`)
-          .join('')}
-      </div>
-      <button class="fe-popup-close">Mengerti</button>
-    </div>
-  `;
-
-    document.body.appendChild(popup);
-
-    // Auto-hide setelah 10 detik
-    const autoHideTimer = setTimeout(() => {
-      hidePopup(popup);
-    }, 10000);
-
-    // Event listener untuk close button
-    const closeBtn = popup.querySelector('.fe-popup-close');
-    closeBtn.addEventListener('click', function () {
-      clearTimeout(autoHideTimer);
-      hidePopup(popup);
-      // Tambahkan continue button setelah popup ditutup manual
-      addContinueButton();
-    });
-
-    // Click outside to close
-    popup.addEventListener('click', function (e) {
-      if (e.target === popup) {
-        clearTimeout(autoHideTimer);
-        hidePopup(popup);
-        // Tambahkan continue button setelah popup ditutup manual
-        addContinueButton();
-      }
-    });
-
-    // Auto-add continue button setelah popup auto-close
-    setTimeout(() => {
-      addContinueButton();
-    }, 10000);
-
-    return popup;
-  }
-
-  // Function tambahan untuk menambah continue button
-  function addContinueButton() {
-    const buttonContainer = document.querySelector('.simulasi-content');
-    const existingBtn = buttonContainer.querySelector(
-      '.btn-primary[onclick="showHasilAkhir()"]'
+  // Responsif
+  function checkWindowSize() {
+    const containerBtnStartDekstop = document.querySelector(
+      '.container-teks-opening'
+    );
+    const containerBtnStartMobile = document.getElementById(
+      'container-btn-mobile'
     );
 
-    if (!existingBtn) {
-      const continueBtn = document.createElement('button');
-      continueBtn.className = 'btn-primary';
-      continueBtn.textContent = 'Lanjutkan';
-      continueBtn.onclick = showHasilAkhir;
-      buttonContainer.appendChild(continueBtn);
+    if (window.innerWidth <= 768) {
+      if (containerBtn.parentNode === containerBtnStartDekstop) {
+        containerBtnStartMobile.append(containerBtn);
+      }
+    } else {
+      if (containerBtn.parentNode === containerBtnStartMobile) {
+        containerBtnStartDekstop.append(containerBtn);
+      }
     }
   }
 
-  function hidePopup(popup) {
-    popup.style.animation = 'fadeOut 0.5s ease forwards';
-    setTimeout(() => {
-      if (popup.parentNode) {
-        document.body.removeChild(popup);
-      }
-    }, 500);
-  }
+  window.addEventListener('load', checkWindowSize);
+  window.addEventListener('resize', checkWindowSize);
 });

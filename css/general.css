@@ -385,6 +385,8 @@ body {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
   border: 3px solid #fff;
   text-align: left;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .teks-opening span {
@@ -518,7 +520,7 @@ body {
 .hasil-container {
   max-width: 900px;
   margin: 0 auto;
-  padding: 40px 20px 0;
+  padding: 40px 20px 40px;
   height: max-content;
   display: flex;
   flex-direction: column;
@@ -528,6 +530,7 @@ body {
 .sarapan-header {
   text-align: center;
   color: white;
+  margin-top: 40px;
 }
 
 .kuis-header h2,
@@ -986,20 +989,134 @@ body {
 @media (max-width: 768px) {
   .scene-opening {
     flex-direction: column;
-    padding: 20px;
+    padding: 0;
+    justify-content: center;
   }
 
   .character {
+    width: 250px;
+    height: 250px;
+    margin: 0;
     flex: none;
-    margin: 10px 0;
   }
 
-  progress-bar,
+  .character:first-of-type {
+    z-index: -1;
+  }
+
+  #character-main.slide-main {
+    transform: translateX(-87%) translateY(50px) !important;
+  }
+
+  .container-teks-opening {
+    flex: none;
+  }
+
+  .container-teks-opening .teks-opening {
+    margin-bottom: 0;
+  }
+
+  .progress-bar,
   .energy-bar {
     width: 200px;
   }
 
   .opening-title {
     font-size: 2.5em;
+  }
+
+  .hasil-container {
+    max-width: 75%;
+  }
+
+  .hasil-card {
+    margin-top: 40px;
+  }
+
+  #container-btn-mobile {
+    position: absolute;
+    bottom: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  #btn-start,
+  .btn-primary,
+  .btn-secondary {
+    font-size: 16px;
+    min-width: 150px;
+  }
+
+  .result-message {
+    font-size: 16px;
+    text-align: left;
+  }
+
+  .kuis-header h2,
+  .hasil-card h2 {
+    font-size: 26px;
+  }
+
+  .score-item-detail,
+  .score-item-detail.total-item {
+    font-size: 16px;
+  }
+
+  .score-value {
+    font-size: 20px;
+  }
+
+  .feedback-message {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 576px) {
+  .opening-background {
+    max-width: 70%;
+  }
+
+  #character-main.slide-main {
+    transform: translateX(-60%) translateY(20%) !important;
+  }
+
+  .container-teks-opening {
+    width: 80%;
+    max-width: 80%;
+  }
+
+  .teks-opening {
+    width: 100%;
+    box-sizing: border-box;
+    font-size: 14px;
+  }
+
+  .kuis-container {
+    padding-bottom: 40px;
+  }
+
+  .soal-kuis h3 {
+    font-size: 16px;
+  }
+
+  .opsi-jawaban {
+    grid-template-columns: 1fr;
+  }
+
+  .opsi-jawaban label {
+    font-size: 12px;
+    padding: 10px;
+  }
+
+  .popup-content {
+    max-width: 70%;
+  }
+
+  .result-container {
+    margin-bottom: 40px;
+  }
+
+  .hasil-container {
+    max-width: 90%;
   }
 }
