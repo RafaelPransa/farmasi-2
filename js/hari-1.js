@@ -170,7 +170,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function typeLine() {
       if (lineIndex < lines.length) {
         if (charIndex === 0 && lineIndex > 0) {
-          teksOpening.innerHTML += '<br><br>';
+          teksOpening.innerHTML += '<br>';
         }
 
         if (charIndex < lines[lineIndex].length) {

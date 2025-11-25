@@ -380,12 +380,10 @@ body {
   padding: 30px;
   border-radius: 20px;
   margin-bottom: 30px;
-  min-height: 150px;
   line-height: 1.6;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
   border: 3px solid #fff;
   text-align: left;
-  width: 100%;
   box-sizing: border-box;
 }
 
@@ -1010,10 +1008,12 @@ body {
 
   .container-teks-opening {
     flex: none;
+    width: 500px;
   }
 
   .container-teks-opening .teks-opening {
     margin-bottom: 0;
+    min-height: 179px;
   }
 
   .progress-bar,
@@ -1085,10 +1085,9 @@ body {
     max-width: 80%;
   }
 
-  .teks-opening {
-    width: 100%;
-    box-sizing: border-box;
+  .container-teks-opening .teks-opening {
     font-size: 14px;
+    min-height: 180px;
   }
 
   .kuis-container {
