@@ -313,7 +313,8 @@
 }
 
 .username-info {
-  color: var(--success);
+  color: var(--bold-blue);
+  font-weight: 700;
 }
 
 /* Start Button */
