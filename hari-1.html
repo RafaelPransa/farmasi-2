@@ -43,6 +43,14 @@
 
     <!-- Scene 2: Kuis Anemia -->
     <div class="scene-kuis" style="display: none">
+      <div class="character-kuis" id="character-main-kuis">
+        <img
+          id="main-character-kuis-img"
+          src=""
+          alt="Karakter Utama Berpikir"
+        />
+      </div>
+
       <div class="kuis-container">
         <div class="kuis-header">
           <h2>📚 Kenali Anemia - Hari 1</h2>
@@ -68,6 +76,13 @@
     <!-- Scene 3: Simulasi Sarapan -->
     <div class="scene-sarapan" style="display: none">
       <div class="sarapan-container">
+        <div class="character-sarapan" id="character-main-kuis">
+          <img
+            id="main-character-sarapan-img"
+            src=""
+            alt="Karakter Utama Berpikir"
+          />
+        </div>
         <div class="sarapan-header">
           <h2>
             🍽️ Pilih Menu Sarapan
@@ -118,6 +133,13 @@
 
     <!-- Scene 4: Hasil Akhir -->
     <div class="scene-hasil" style="display: none">
+      <div class="character-hasil" id="character-main-kuis">
+        <img
+          id="main-character-hasil-img"
+          src=""
+          alt="Karakter Utama Berpikir"
+        />
+      </div>
       <div class="hasil-container">
         <div class="hasil-card">
           <h2>🎉 Selamat! Hari 1 Selesai</h2>
@@ -143,6 +165,21 @@
 
     <div id="container-btn-mobile"></div>
 
+    <audio id="background-music" loop>
+      <source src="assets/audio/backsound.mp3" type="audio/mp3" />
+    </audio>
+    <audio id="sound-click" preload="auto">
+      <source src="assets/audio/select-click.wav" type="audio/wav" />
+    </audio>
+    <audio id="cool-click" preload="auto">
+      <source src="assets/audio/cool-click.wav" type="audio/wav" />
+    </audio>
+    <audio id="game-click">
+      <source src="assets/audio/game-click.wav" type="audio/wav" />
+    </audio>
+    <audio id="notification-sound">
+      <source src="assets/audio/notification.wav" type="audio/wav" />
+    </audio>
     <script src="js/hari-1.js"></script>
   </body>
 </html>

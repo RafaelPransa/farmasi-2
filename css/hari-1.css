@@ -89,7 +89,6 @@ body {
   cursor: pointer;
 }
 
-.food-card[data-food='mie-instan']:hover,
 .food-card[data-food='mie-instan'].selected {
   border-color: #ff3b30;
 }

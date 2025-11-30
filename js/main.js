@@ -10,6 +10,82 @@ document.addEventListener('DOMContentLoaded', function () {
   const startButton = document.getElementById('btn-start-game');
   const loadingContainer = document.getElementById('loading-container');
 
+  // State Audio Global
+  const bgMusic = document.getElementById('background-music');
+  const soundClick = document.getElementById('sound-click');
+  const soundCoolClick = document.getElementById('cool-click');
+  const soundGameClick = document.getElementById('game-click');
+  const notificationSound = document.getElementById('teks-opening-sound');
+
+  let isSoundOn =
+    localStorage.getItem('fesmart_sound') === 'off' ? false : true;
+
+  // Fungsi Global untuk Mengontrol Suara
+  window.playClickSound = function () {
+    if (isSoundOn && soundClick) {
+      soundClick.currentTime = 0; // Memastikan suara dapat diputar cepat
+      soundClick
+        .play()
+        .catch((e) => console.log('Click sound failed to play:', e));
+    }
+  };
+
+  window.playCoolClickSound = function () {
+    if (isSoundOn && soundCoolClick) {
+      soundCoolClick.currentTime = 0; // Memastikan suara dapat diputar cepat
+      soundCoolClick
+        .play()
+        .catch((e) => console.log('Click sound failed to play:', e));
+    }
+  };
+
+  window.playGameClickSound = function () {
+    if (isSoundOn && soundGameClick) {
+      soundGameClick.currentTime = 0; // Memastikan suara dapat diputar cepat
+      soundGameClick
+        .play()
+        .catch((e) => console.log('Click sound failed to play:', e));
+    }
+  };
+
+  window.playNotificationSound = function () {
+    if (isSoundOn && notificationSound) {
+      notificationSound.currentTime = 0; // Memastikan suara dapat diputar cepat
+      notificationSound
+        .play()
+        .catch((e) => console.log('Click sound failed to play:', e));
+    }
+  };
+
+  window.toggleSound = function () {
+    isSoundOn = !isSoundOn;
+    localStorage.setItem('fesmart_sound', isSoundOn ? 'on' : 'off');
+
+    // Update ikon
+    const soundBtn = document.querySelector(
+      '.control-btn[onclick="toggleSound()"]'
+    );
+    if (soundBtn) {
+      soundBtn.innerHTML = isSoundOn ? '🔊 Sound' : '🔇 Sound';
+    }
+
+    if (isSoundOn) {
+      playBackgroundMusic();
+    } else {
+      if (bgMusic) bgMusic.pause();
+    }
+  };
+
+  window.playBackgroundMusic = function () {
+    if (isSoundOn && bgMusic && bgMusic.paused) {
+      // Coba putar musik, ini mungkin gagal karena batasan browser (autoplay)
+      bgMusic.volume = 0.5; // Atur volume agar tidak terlalu keras
+      bgMusic
+        .play()
+        .catch((e) => console.log('Background music auto-play blocked:', e));
+    }
+  };
+
   // State
   let selectedCharacter = null;
   let isAnonymous = false;
@@ -43,6 +119,7 @@ document.addEventListener('DOMContentLoaded', function () {
   // Character Selection
   characterCards.forEach((card) => {
     card.addEventListener('click', function () {
+      window.playClickSound();
       // Remove previous selection
       characterCards.forEach((c) =>
         c.classList.remove('selected', 'anonymous-selected')
@@ -65,6 +142,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Form submission
   userForm.addEventListener('submit', function (e) {
+    playGameClickSound();
     e.preventDefault();
     if (isFormValid) {
       startGame();
@@ -73,6 +151,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Anonymous Checkbox
   anonymousCheckbox.addEventListener('change', function () {
+    playCoolClickSound();
     isAnonymous = this.checked;
 
     if (isAnonymous) {
@@ -111,6 +190,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Username Input validation
   usernameInput.addEventListener('input', function () {
+    playCoolClickSound();
     validateForm();
 
     // Real-time validation feedback
@@ -387,4 +467,15 @@ document.addEventListener('DOMContentLoaded', function () {
     this.parentElement.style.transform = 'scale(1)';
   });
 
+  // Tambahkan pemanggilan ini di akhir DOMContentLoaded
+
+  // ...
+  // Initialize form - RESET SETIAP KALI LOAD
+  resetForm();
+
+  // TAMBAH: Coba putar musik latar saat halaman dimuat
+  playBackgroundMusic();
+
+  // TAMBAH: Update ikon tombol saat dimuat
+  window.toggleSound();
 });

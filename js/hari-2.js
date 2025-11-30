@@ -28,11 +28,13 @@ document.addEventListener('DOMContentLoaded', function () {
         normal: 'assets/images/characters/siti-normal.png',
         murung: 'assets/images/characters/siti-murung.png',
         senang: 'assets/images/characters/siti-senang.png',
+        berpikir: 'assets/images/characters/siti-berpikir.png',
       },
       sari: {
         normal: 'assets/images/characters/sari-normal.png',
         murung: 'assets/images/characters/sari-murung.png',
         senang: 'assets/images/characters/sari-senang.png',
+        berpikir: 'assets/images/characters/sari-berpikir.png',
       },
     };
     return (
@@ -45,7 +47,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const mainCharacter = {
     id: userData.character,
     name: userData.characterName,
-    image: getCharacterImage(userData.character, 'normal'),
+    image: getCharacterImage(userData.character, 'murung'),
   };
 
   function updateCharacterElements() {
@@ -199,6 +201,11 @@ document.addEventListener('DOMContentLoaded', function () {
   function startKuis() {
     // Hide opening scene
     sceneOpening.style.opacity = '0';
+    const characterKuisImg = document.getElementById('main-character-kuis-img');
+    if (characterKuisImg) {
+      characterKuisImg.src = getCharacterImage(mainCharacter.id, 'berpikir');
+      characterKuisImg.classList.add('fade-in');
+    }
 
     setTimeout(() => {
       sceneOpening.style.display = 'none';
@@ -304,6 +311,13 @@ document.addEventListener('DOMContentLoaded', function () {
     const timerCircle = document.querySelector('.timer-circle');
     const clockDisplay = document.getElementById('clock-display');
     const btnMinumFe = document.getElementById('btn-minum-fe');
+    const characterKuisImg = document.getElementById(
+      'main-character-simulasi-img'
+    );
+    if (characterKuisImg) {
+      characterKuisImg.src = getCharacterImage(mainCharacter.id, 'berpikir');
+      characterKuisImg.classList.add('fade-in');
+    }
 
     // Reset UI
     timerText.textContent = timeLeft;
@@ -485,6 +499,9 @@ document.addEventListener('DOMContentLoaded', function () {
   function showHasilAkhir() {
     sceneSimulasi.style.display = 'none';
     sceneHasil.style.display = 'block';
+    const characterKuisImg = document.getElementById(
+      'main-character-hasil-img'
+    );
 
     // Calculate total score
     const totalScore = score + kepatuhan;
@@ -520,14 +537,26 @@ document.addEventListener('DOMContentLoaded', function () {
       feedbackMessage.innerHTML =
         '🎉 <strong>Luar biasa!</strong> Kamu sangat patuh minum tablet Fe!';
       feedbackMessage.style.color = '#4CD964';
+      if (characterKuisImg) {
+        characterKuisImg.src = getCharacterImage(mainCharacter.id, 'senang');
+        characterKuisImg.classList.add('fade-in');
+      }
     } else if (totalScore >= 8) {
       feedbackMessage.innerHTML =
         '👍 <strong>Bagus!</strong> Terus tingkatkan kepatuhan minum Fe!';
       feedbackMessage.style.color = '#FF9500';
+      if (characterKuisImg) {
+        characterKuisImg.src = getCharacterImage(mainCharacter.id, 'normal');
+        characterKuisImg.classList.add('fade-in');
+      }
     } else {
       feedbackMessage.innerHTML =
         '💪 <strong>Jangan menyerah!</strong> Ingat selalu minum Fe tepat waktu!';
       feedbackMessage.style.color = '#FF3B30';
+      if (characterKuisImg) {
+        characterKuisImg.src = getCharacterImage(mainCharacter.id, 'murung');
+        characterKuisImg.classList.add('fade-in');
+      }
     }
 
     hasilMessage.appendChild(feedbackMessage);

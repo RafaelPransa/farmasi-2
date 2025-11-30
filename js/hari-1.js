@@ -5,11 +5,94 @@ document.addEventListener('DOMContentLoaded', function () {
   const sceneKuis = document.querySelector('.scene-kuis');
   const sceneSarapan = document.querySelector('.scene-sarapan');
   const sceneHasil = document.querySelector('.scene-hasil');
-
   const characterMain = document.getElementById('character-main'); // Ganti id
   const guru = document.getElementById('character-guru');
   const teksOpening = document.querySelector('.teks-opening');
   const btnStart = document.getElementById('btn-start');
+  const bgMusic = document.getElementById('background-music');
+  const soundClick = document.getElementById('sound-click');
+  const soundCoolClick = document.getElementById('cool-click');
+  const soundGameClick = document.getElementById('game-click');
+  const teksOpeningSound = document.getElementById('teks-opening-sound');
+  const notificationSound = document.getElementById('teks-opening-sound');
+
+  let isSoundOn =
+    localStorage.getItem('fesmart_sound') === 'off' ? false : true;
+
+  // Fungsi Global untuk Mengontrol Suara
+  window.playClickSound = function () {
+    if (isSoundOn && soundClick) {
+      soundClick.currentTime = 0; // Memastikan suara dapat diputar cepat
+      soundClick
+        .play()
+        .catch((e) => console.log('Click sound failed to play:', e));
+    }
+  };
+
+  window.playCoolClickSound = function () {
+    if (isSoundOn && soundCoolClick) {
+      soundCoolClick.currentTime = 0; // Memastikan suara dapat diputar cepat
+      soundCoolClick
+        .play()
+        .catch((e) => console.log('Click sound failed to play:', e));
+    }
+  };
+
+  window.playGameClickSound = function () {
+    if (isSoundOn && soundGameClick) {
+      soundGameClick.currentTime = 0; // Memastikan suara dapat diputar cepat
+      soundGameClick
+        .play()
+        .catch((e) => console.log('Click sound failed to play:', e));
+    }
+  };
+
+  window.playTeksOpeningSound = function () {
+    if (isSoundOn && teksOpeningSound) {
+      teksOpeningSound.currentTime = 0; // Memastikan suara dapat diputar cepat
+      teksOpeningSound
+        .play()
+        .catch((e) => console.log('Click sound failed to play:', e));
+    }
+  };
+
+  window.playNotificationSound = function () {
+    if (isSoundOn && notificationSound) {
+      notificationSound.currentTime = 0; // Memastikan suara dapat diputar cepat
+      notificationSound
+        .play()
+        .catch((e) => console.log('Click sound failed to play:', e));
+    }
+  };
+
+  window.toggleSound = function () {
+    isSoundOn = !isSoundOn;
+    localStorage.setItem('fesmart_sound', isSoundOn ? 'on' : 'off');
+
+    // Update ikon
+    const soundBtn = document.querySelector(
+      '.control-btn[onclick="toggleSound()"]'
+    );
+    if (soundBtn) {
+      soundBtn.innerHTML = isSoundOn ? '🔊 Sound' : '🔇 Sound';
+    }
+
+    if (isSoundOn) {
+      playBackgroundMusic();
+    } else {
+      if (bgMusic) bgMusic.pause();
+    }
+  };
+
+  window.playBackgroundMusic = function () {
+    if (isSoundOn && bgMusic && bgMusic.paused) {
+      // Coba putar musik, ini mungkin gagal karena batasan browser (autoplay)
+      bgMusic.volume = 0.5; // Atur volume agar tidak terlalu keras
+      bgMusic
+        .play()
+        .catch((e) => console.log('Background music auto-play blocked:', e));
+    }
+  };
 
   // Load user data dari localStorage
   const userData = JSON.parse(localStorage.getItem('fesmart_user'));
@@ -18,11 +101,33 @@ document.addEventListener('DOMContentLoaded', function () {
     return;
   }
 
+  function getCharacterImage(characterId, emotion = 'normal') {
+    const characterImages = {
+      siti: {
+        normal: 'assets/images/characters/siti-normal.png',
+        murung: 'assets/images/characters/siti-murung.png',
+        senang: 'assets/images/characters/siti-senang.png',
+        berpikir: 'assets/images/characters/siti-berpikir.png', // Tambah emotion berpikir
+      },
+      sari: {
+        normal: 'assets/images/characters/sari-normal.png',
+        murung: 'assets/images/characters/sari-murung.png',
+        senang: 'assets/images/characters/sari-senang.png',
+        berpikir: 'assets/images/characters/sari-berpikir.png', // Tambah emotion berpikir
+      },
+    };
+    return (
+      characterImages[characterId]?.[emotion] ||
+      characterImages[characterId]?.['normal'] ||
+      'assets/images/characters/default.png'
+    );
+  }
+
   // Character data berdasarkan pilihan user
   const mainCharacter = {
     id: userData.character,
     name: userData.characterName,
-    image: userData.characterImage,
+    image: getCharacterImage(userData.character, 'murung'),
   };
 
   // Update semua elemen dengan nama karakter
@@ -200,7 +305,10 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // Event Listeners
-  btnStart.addEventListener('click', startKuis);
+  btnStart.addEventListener('click', function () {
+    playGameClickSound();
+    startKuis();
+  });
 
   function startKuis() {
     // Hide opening scene
@@ -209,6 +317,13 @@ document.addEventListener('DOMContentLoaded', function () {
     setTimeout(() => {
       sceneOpening.style.display = 'none';
       sceneKuis.style.display = 'block';
+      const characterKuisImg = document.getElementById(
+        'main-character-kuis-img'
+      );
+      if (characterKuisImg) {
+        characterKuisImg.src = getCharacterImage(mainCharacter.id, 'berpikir');
+        characterKuisImg.classList.add('fade-in');
+      }
       loadSoalKuis(0);
     }, 800);
   }
@@ -226,6 +341,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Create question HTML
     const kuisContent = document.getElementById('kuis-content');
     kuisContent.innerHTML = `
+    
       <div class="soal-kuis slide-up">
         <h3>${soal.soal}</h3>
         <div class="opsi-jawaban">
@@ -243,6 +359,7 @@ document.addEventListener('DOMContentLoaded', function () {
             .join('')}
         </div>
       </div>
+  
     `;
 
     // Update navigation buttons
@@ -267,6 +384,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!selectedAnswer && direction === 1) {
       alert('Pilih jawaban terlebih dahulu!');
+      playNotificationSound();
       return;
     }
 
@@ -321,6 +439,13 @@ document.addEventListener('DOMContentLoaded', function () {
         selectFood(this);
       });
     });
+    const characterKuisImg = document.getElementById(
+      'main-character-sarapan-img'
+    );
+    if (characterKuisImg) {
+      characterKuisImg.src = getCharacterImage(mainCharacter.id, 'berpikir');
+      characterKuisImg.classList.add('fade-in');
+    }
   }
 
   function selectFood(card) {
@@ -493,8 +618,15 @@ document.addEventListener('DOMContentLoaded', function () {
     // Feedback
     const feedbackMessage = document.createElement('div');
     feedbackMessage.className = 'feedback-message';
+    const characterHasilAkhir = document.getElementById(
+      'main-character-hasil-img'
+    );
 
     if (totalPengetahuan >= 3 && energy > 70) {
+      if (characterHasilAkhir) {
+        characterHasilAkhir.src = getCharacterImage(mainCharacter.id, 'senang');
+        characterHasilAkhir.classList.add('fade-in');
+      }
       feedbackMessage.innerHTML =
         '🎉 <strong>Luar biasa!</strong> Kamu benar-benar memahami cara melawan anemia!';
       feedbackMessage.style.color = '#4CD964';
@@ -502,10 +634,18 @@ document.addEventListener('DOMContentLoaded', function () {
       feedbackMessage.innerHTML =
         '👍 <strong>Bagus!</strong> Terus belajar tentang anemia!';
       feedbackMessage.style.color = '#FF9500';
+      if (characterHasilAkhir) {
+        characterHasilAkhir.src = getCharacterImage(mainCharacter.id, 'normal');
+        characterHasilAkhir.classList.add('fade-in');
+      }
     } else {
       feedbackMessage.innerHTML =
         '💪 <strong>Jangan menyerah!</strong> Terus berusaha memahami anemia!';
       feedbackMessage.style.color = '#FF3B30';
+      if (characterHasilAkhir) {
+        characterHasilAkhir.src = getCharacterImage(mainCharacter.id, 'murung');
+        characterHasilAkhir.classList.add('fade-in');
+      }
     }
 
     hasilMessage.appendChild(feedbackMessage);
