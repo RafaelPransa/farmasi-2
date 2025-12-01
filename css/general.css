@@ -500,7 +500,8 @@ body {
 /* Kuis Scene */
 .scene-kuis,
 .scene-sarapan,
-.scene-hasil {
+.scene-hasil,
+.scene-kuis-harian {
   position: fixed;
   top: 0;
   left: 0;
@@ -537,8 +538,6 @@ body {
   animation: fadeIn 0.8s ease forwards;
 }
 
-
-
 .character-sarapan {
   position: absolute;
   top: 30%;
@@ -563,7 +562,10 @@ body {
   animation: fadeIn 0.8s ease forwards;
 }
 
-.character-kuis img, .character-hasil img, .character-sarapan img, .character-simulasi img {
+.character-kuis img,
+.character-hasil img,
+.character-sarapan img,
+.character-simulasi img {
   width: 100%;
   height: 100%;
   object-fit: contain;
@@ -1063,8 +1065,15 @@ body {
 
   .character-kuis,
   .character-sarapan,
-  .character-hasil, .character-simulasi {
+  .character-hasil,
+  .character-simulasi {
     display: none;
+  }
+
+  #character-main,
+  #character-guru,
+  #character-teman {
+    display: none !important; /* Memastikan karakter opening tersembunyi */
   }
 
   .progress-bar,
@@ -1082,6 +1091,10 @@ body {
 
   .hasil-card {
     margin-top: 40px;
+  }
+
+  .container-btn {
+    margin-top: 1rem;
   }
 
   #container-btn-mobile {
