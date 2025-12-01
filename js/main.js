@@ -400,7 +400,7 @@ document.addEventListener('DOMContentLoaded', function () {
     simulateAPICall(userData)
       .then(() => {
         setTimeout(() => {
-          window.location.href = 'hari-1.html';
+          window.location.href = 'hari1.html';
         }, 1000);
       })
       .catch((error) => {

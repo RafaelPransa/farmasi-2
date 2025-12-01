@@ -3,18 +3,12 @@ document.addEventListener('DOMContentLoaded', function () {
   const containerOpening = document.querySelector('.container-opening');
   const sceneOpening = document.querySelector('.scene-opening');
   const sceneKuis = document.querySelector('.scene-kuis');
-  const sceneSimulasi = document.querySelector('.scene-simulasi');
+  const sceneSarapan = document.querySelector('.scene-sarapan');
   const sceneHasil = document.querySelector('.scene-hasil');
-
-  const characterMain = document.getElementById('character-main');
-  const teman = document.getElementById('character-teman');
+  const characterMain = document.getElementById('character-main'); // Ganti id
+  const guru = document.getElementById('character-guru');
   const teksOpening = document.querySelector('.teks-opening');
   const btnStart = document.getElementById('btn-start');
-  const btnBack = document.querySelector('.container-btn .btn-secondary');
-  const containerBtn = document.querySelector(
-    '.scene-opening .container-teks-opening .container-btn'
-  );
-
   const bgMusic = document.getElementById('background-music');
   const soundClick = document.getElementById('sound-click');
   const soundCoolClick = document.getElementById('cool-click');
@@ -112,84 +106,121 @@ document.addEventListener('DOMContentLoaded', function () {
         normal: 'assets/images/characters/siti-normal.png',
         murung: 'assets/images/characters/siti-murung.png',
         senang: 'assets/images/characters/siti-senang.png',
-        berpikir: 'assets/images/characters/siti-berpikir.png',
+        berpikir: 'assets/images/characters/siti-berpikir.png', // Tambah emotion berpikir
       },
       sari: {
         normal: 'assets/images/characters/sari-normal.png',
         murung: 'assets/images/characters/sari-murung.png',
         senang: 'assets/images/characters/sari-senang.png',
-        berpikir: 'assets/images/characters/sari-berpikir.png',
+        berpikir: 'assets/images/characters/sari-berpikir.png', // Tambah emotion berpikir
       },
     };
     return (
       characterImages[characterId]?.[emotion] ||
-      characterImages[characterId]?.['murung'] ||
+      characterImages[characterId]?.['normal'] ||
       'assets/images/characters/default.png'
     );
   }
 
+  // Character data berdasarkan pilihan user
   const mainCharacter = {
     id: userData.character,
     name: userData.characterName,
     image: getCharacterImage(userData.character, 'murung'),
   };
 
+  // Update semua elemen dengan nama karakter
   function updateCharacterElements() {
+    // Update opening scene
+    document.getElementById('main-character-name').textContent =
+      mainCharacter.name;
+    document.getElementById('sarapan-character-name').textContent =
+      mainCharacter.name;
+    document.getElementById('energy-character-name').textContent =
+      mainCharacter.name;
+
     // Update gambar karakter utama
     const mainCharacterImg = document.getElementById('main-character-img');
     mainCharacterImg.src = mainCharacter.image;
     mainCharacterImg.alt = mainCharacter.name;
   }
 
-  // Data kuis hari 2
+  // Data kuis
   const kuisData = [
     {
-      soal: 'Kapan waktu yang tepat untuk minum tablet Fe?',
+      soal: 'Apa itu anemia?',
       opsi: [
-        'Pagi hari sebelum makan',
-        'Sesudah makan siang atau malam',
-        'Tengah malam sebelum tidur',
-        'Kapan saja tidak ada aturan',
+        'Kekurangan sel darah putih',
+        'Kekurangan sel darah merah atau hemoglobin',
+        'Kelebihan gula dalam darah',
+        'Infeksi pada saluran pernapasan',
       ],
       jawaban: 1,
     },
     {
-      soal: 'Apa yang harus dihindari setelah minum tablet Fe?',
+      soal: 'Apa penyebab utama anemia?',
       opsi: [
-        'Minum air putih',
-        'Minum teh atau kopi',
-        'Makan buah-buahan',
-        'Berolahraga ringan',
+        'Kurang olahraga',
+        'Kekurangan zat besi',
+        'Terlalu banyak tidur',
+        'Kebanyakan main game',
       ],
       jawaban: 1,
     },
     {
-      soal: 'Berapa frekuensi minum tablet Fe yang dianjurkan untuk remaja putri?',
+      soal: 'Apa tanda-tanda anemia?',
       opsi: [
-        'Setiap hari',
-        'Seminggu sekali',
-        'Bulan sekali',
-        'Hanya saat menstruasi',
+        'Wajah memerah dan energi berlebihan',
+        'Lemas, pucat, dan sulit konsentrasi',
+        'Berat badan naik drastis',
+        'Tidak ada gejala sama sekali',
       ],
       jawaban: 1,
     },
   ];
 
+  // Data makanan
+  const makananData = {
+    'nasi-telur': {
+      nama: 'Nasi + Telur',
+      energy: +30,
+      givesBonus: true,
+      message: `Pilihan bagus! 🥚 Telur kaya zat besi dan protein yang membantu melawan anemia`,
+      type: 'positive',
+      popup:
+        'Anemia terjadi karena kekurangan zat besi. Yuk, mulai kenali penyebabnya!',
+    },
+    roti: {
+      nama: 'Roti Gandum',
+      energy: +15,
+      givesBonus: true,
+      message: `Baik! 🌾 Roti gandum memberikan energi stabil dan serat`,
+      type: 'positive',
+      popup:
+        'Zat besi dari tumbuhan lebih sulit diserap tubuh. Konsumsi dengan vitamin C!',
+    },
+    'mie-instan': {
+      nama: 'Mie Instan',
+      energy: -20,
+      givesBonus: false,
+      message: `Hati-hati! 🚫 Mie instan kurang zat gizi penting untuk melawan anemia`,
+      type: 'negative',
+      popup: 'Makanan instan biasanya rendah zat besi. Pilih makanan alami!',
+    },
+  };
+
   // State variables
   let currentKuisIndex = 0;
   let score = 0;
-  let kepatuhan = 0;
-  let hbLevel = 12;
-  let timer;
-  let timeLeft = 60;
-  let gameCompleted = false;
-  let continueButtonCreated = false; // ⚠️ BARU: Flag untuk cek tombol sudah dibuat
+  let energy = 55;
+  let bonusPengetahuan = 0;
+  let jumlahPilihanSehat = 0;
 
   // Initialize the game
   initGame();
 
   function initGame() {
-    // Update karakter
+    // Update karakter elements
     updateCharacterElements();
 
     // Opening animation sequence
@@ -202,15 +233,13 @@ document.addEventListener('DOMContentLoaded', function () {
         startOpeningScene();
       }, 1600);
     }, 2000);
-
-    document.getElementById('btn-kembali').onclick = kembaliKeHari1;
   }
 
   function startOpeningScene() {
     // Animate characters entering
     setTimeout(() => {
       characterMain.classList.add('slide-main');
-      teman.classList.add('slide-teman');
+      guru.classList.add('slide-guru');
     }, 500);
 
     // Start dialog typewriter effect
@@ -223,22 +252,17 @@ document.addEventListener('DOMContentLoaded', function () {
       btnStart.classList.remove('btn-hidden');
       btnStart.style.opacity = '1';
       btnStart.style.transition = 'opacity 0.8s ease';
-      btnBack.classList.remove('btn-hidden');
-      btnBack.style.opacity = '1';
-      btnBack.style.transition = 'opacity 0.8s ease';
-    }, 15000);
+    }, 12000);
   }
 
   function showDialog() {
+    // Dialog dinamis berdasarkan karakter yang dipilih
     const dialogLines = [
-      `TEMAN ${mainCharacter.name.toUpperCase()}: "Hai ${
-        mainCharacter.name
-      }, aku lihat kamu masih sering lesu. Aku dulu juga gitu lho!"`,
-      `${mainCharacter.name.toUpperCase()}: "Iya nih, gimana caranya kamu bisa lebih berenergi sekarang?"`,
-      `TEMAN ${mainCharacter.name.toUpperCase()}: "Aku rutin minum tablet Fe setiap minggu di sekolah. Coba kamu ikutan. Tapi harus tahu aturan minumnya ya, biar efektif!"`,
+      `${mainCharacter.name.toUpperCase()}: "Aduh... kepala pusing sekali. Kenapa ya aku sering merasa lemas dan sulit konsentrasi di sekolah?"`,
+      'GURU UKS: "Hai, gejala yang kamu alami seperti pucat, lemas, dan pusing bisa jadi tanda anemia. Yuk kita pelajari bersama!"',
     ];
 
-    typeWriterMultiple(dialogLines, 40, 800);
+    typeWriterMultiple(dialogLines, 40, 1000);
   }
 
   function typeWriterMultiple(lines, speed = 40, lineDelay = 800) {
@@ -246,7 +270,6 @@ document.addEventListener('DOMContentLoaded', function () {
     let charIndex = 0;
 
     teksOpening.innerHTML = '';
-
     function typeLine() {
       if (lineIndex < lines.length) {
         if (charIndex === 0 && lineIndex > 0) {
@@ -261,14 +284,15 @@ document.addEventListener('DOMContentLoaded', function () {
             teksOpening.innerHTML += '<strong>';
           }
 
-          if (charIndex % 3 === 0) {
-            playCoolClickSound();
-          }
-
           teksOpening.innerHTML += currentChar;
 
           if (currentChar === ':' && charIndex < 10) {
             teksOpening.innerHTML += '</strong>';
+          }
+
+          if (charIndex % 3 === 0) {
+            // Contoh: Panggil hanya setiap 2 karakter
+            window.playCoolClickSound();
           }
 
           charIndex++;
@@ -284,21 +308,25 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // Event Listeners
-  btnStart.addEventListener('click', startKuis);
+  btnStart.addEventListener('click', function () {
+    playGameClickSound();
+    startKuis();
+  });
 
   function startKuis() {
     // Hide opening scene
-    playGameClickSound();
     sceneOpening.style.opacity = '0';
-    const characterKuisImg = document.getElementById('main-character-kuis-img');
-    if (characterKuisImg) {
-      characterKuisImg.src = getCharacterImage(mainCharacter.id, 'berpikir');
-      characterKuisImg.classList.add('fade-in');
-    }
 
     setTimeout(() => {
       sceneOpening.style.display = 'none';
       sceneKuis.style.display = 'block';
+      const characterKuisImg = document.getElementById(
+        'main-character-kuis-img'
+      );
+      if (characterKuisImg) {
+        characterKuisImg.src = getCharacterImage(mainCharacter.id, 'berpikir');
+        characterKuisImg.classList.add('fade-in');
+      }
       loadSoalKuis(0);
     }, 800);
   }
@@ -316,6 +344,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Create question HTML
     const kuisContent = document.getElementById('kuis-content');
     kuisContent.innerHTML = `
+    
       <div class="soal-kuis slide-up">
         <h3>${soal.soal}</h3>
         <div class="opsi-jawaban">
@@ -333,6 +362,7 @@ document.addEventListener('DOMContentLoaded', function () {
             .join('')}
         </div>
       </div>
+  
     `;
 
     // Update navigation buttons
@@ -345,7 +375,6 @@ document.addEventListener('DOMContentLoaded', function () {
     btnNext.textContent =
       index === kuisData.length - 1 ? 'Selesai 🎉' : 'Selanjutnya ➡';
 
-    // Add event listeners for navigation
     btnPrev.onclick = () => {
       window.playCoolClickSound();
       navigateKuis(-1);
@@ -376,6 +405,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Check answer if moving forward
     if (direction === 1 && selectedAnswer) {
+      playCoolClickSound();
       const isCorrect =
         parseInt(selectedAnswer.value) === kuisData[currentKuisIndex].jawaban;
       if (isCorrect) {
@@ -388,230 +418,193 @@ document.addEventListener('DOMContentLoaded', function () {
     if (currentKuisIndex < kuisData.length) {
       loadSoalKuis(currentKuisIndex);
     } else {
-      // Move to simulasi scene
-      showSimulasiScene();
+      // Move to sarapan scene
+      showSarapanScene();
     }
   }
 
-  function showSimulasiScene() {
+  function showSarapanScene() {
     sceneKuis.style.display = 'none';
-    sceneSimulasi.style.display = 'block';
+    sceneSarapan.style.display = 'block';
 
-    // Reset simulasi state
-    timeLeft = 60;
-    gameCompleted = false;
-    continueButtonCreated = false; // ⚠️ BARU: Reset flag
+    // Reset semua state dengan benar
+    selectedFood = null;
+    jumlahPilihanSehat = 0;
+    bonusPengetahuan = 0;
+    energy = 55; // Reset energy ke nilai default
 
-    // Update stats display
-    updateStatsDisplay();
+    updateEnergyBar();
 
-    // Start the simulation
-    startSimulasi();
-  }
+    // Reset semua seleksi makanan
+    document.querySelectorAll('.food-card').forEach((card) => {
+      card.classList.remove('selected');
+    });
 
-  function startSimulasi() {
-    const timerText = document.getElementById('timer-text');
-    const timerCircle = document.querySelector('.timer-circle');
-    const clockDisplay = document.getElementById('clock-display');
-    const btnMinumFe = document.getElementById('btn-minum-fe');
+    // Reset result message
+    const resultMessage = document.getElementById('result-message');
+    resultMessage.style.display = 'none';
+
+    // Sembunyikan tombol lanjut
+    const btnLanjut = document.getElementById('btn-lanjut');
+    btnLanjut.classList.add('btn-hidden');
+    btnLanjut.style.opacity = '0';
+
+    // Add event listeners untuk food cards
+    document.querySelectorAll('.food-card').forEach((card) => {
+      card.addEventListener('click', function () {
+        selectFood(this);
+        playClickSound();
+      });
+    });
     const characterKuisImg = document.getElementById(
-      'main-character-simulasi-img'
+      'main-character-sarapan-img'
     );
     if (characterKuisImg) {
       characterKuisImg.src = getCharacterImage(mainCharacter.id, 'berpikir');
       characterKuisImg.classList.add('fade-in');
     }
-
-    // Reset UI
-    timerText.textContent = timeLeft;
-    timerCircle.className = 'timer-circle';
-    btnMinumFe.disabled = false;
-    btnMinumFe.textContent = '💊 Minum Fe Sekarang';
-
-    // Set clock to 15:59
-    clockDisplay.textContent = '15:59';
-
-    // Start countdown
-    timer = setInterval(() => {
-      timeLeft--;
-      timerText.textContent = timeLeft;
-
-      // Update visual warnings
-      if (timeLeft <= 30 && timeLeft > 10) {
-        timerCircle.classList.add('warning');
-      } else if (timeLeft <= 10) {
-        timerCircle.classList.remove('warning');
-        timerCircle.classList.add('danger');
-      }
-
-      // Time's up
-      if (timeLeft <= 0) {
-        clearInterval(timer);
-        timeUp();
-      }
-    }, 1000);
-
-    // Add event listener for the button
-    btnMinumFe.onclick = minumTabletFe;
   }
 
-  function minumTabletFe() {
-    playCoolClickSound();
+  function selectFood(card) {
+    const foodId = card.dataset.food;
+    const food = makananData[foodId];
 
-    if (gameCompleted) return;
+    // Toggle selection
+    card.classList.toggle('selected');
 
-    clearInterval(timer);
-    gameCompleted = true;
+    // Jika makanan dipilih (bukan di-unselect)
+    if (card.classList.contains('selected')) {
+      selectedFood = foodId;
 
-    const btnMinumFe = document.getElementById('btn-minum-fe');
+      // Hitung ulang jumlah pilihan sehat HANYA jika makanan sehat
+      if (food.energy > 0) {
+        jumlahPilihanSehat++;
+      }
 
-    if (timeLeft > 0) {
-      // Success - minum sebelum jam 16:00
-      kepatuhan += 10;
-      hbLevel += 0.5;
+      // Update energy
+      energy = Math.max(0, Math.min(100, energy + food.energy));
+      updateEnergyBar();
 
-      // Tampilkan popup sukses
-      const popupMessage = `
-      Tepat waktu! Kamu berhasil minum tablet Fe sebelum jam 16:00  
-      +10 Poin Kepatuhan  
-      Hb meningkat menjadi ${hbLevel} g/dL
-    `;
+      // Show result untuk makanan ini saja
+      showFoodResult(food);
 
-      showFePopup(popupMessage, 'success');
+      // Tampilkan popup edukasi
+      showEdukasiPopup(food.popup);
     } else {
-      // Time's up - handle kasus terlambat
-      hbLevel = Math.max(8, hbLevel - 0.5);
+      // Jika makanan di-unselect, kurangi jumlah pilihan sehat jika makanan sehat
+      if (food.energy > 0) {
+        jumlahPilihanSehat = Math.max(0, jumlahPilihanSehat - 1);
+      }
 
-      // Tampilkan popup error
-      const popupMessage = `
-      Waktu habis! Kamu terlambat minum tablet Fe  
-      Hb menurun menjadi ${hbLevel} g/dL  
-      Ingat, minum sebelum jam 16:00 ya!
-    `;
+      // Kembalikan energy
+      energy = Math.max(0, Math.min(100, energy - food.energy));
+      updateEnergyBar();
 
-      showFePopup(popupMessage, 'error');
+      // Reset selectedFood
+      selectedFood = null;
     }
 
-    btnMinumFe.disabled = true;
-    btnMinumFe.textContent = timeLeft > 0 ? '✅ Sudah diminum' : '⏰ Terlambat';
-
-    // Update stats display setelah perubahan Hb
-    updateStatsDisplay();
+    // Update bonus pengetahuan
+    bonusPengetahuan = jumlahPilihanSehat;
   }
 
-  function timeUp() {
-    gameCompleted = true;
+  function showFoodResult(food) {
+    const resultMessage = document.getElementById('result-message');
 
-    const btnMinumFe = document.getElementById('btn-minum-fe');
+    // Tampilkan pesan berdasarkan makanan yang baru dipilih
+    if (food.energy > 0) {
+      resultMessage.innerHTML = food.message;
+      resultMessage.className = 'result-message result-positive';
+    } else {
+      resultMessage.innerHTML = food.message;
+      resultMessage.className = 'result-message result-negative';
+    }
 
-    // Penalty for being late
-    hbLevel = Math.max(8, hbLevel - 0.5);
+    resultMessage.style.display = 'block';
 
-    // Tampilkan popup error
-    const popupMessage = `
-    Waktu habis! Kamu terlambat minum tablet Fe  
-    Hb menurun menjadi ${hbLevel} g/dL  
-    Ingat, minum sebelum jam 16:00 ya!
-  `;
+    // Show continue button hanya jika ada makanan yang dipilih
+    const btnLanjut = document.getElementById('btn-lanjut');
+    const hasSelectedFood =
+      document.querySelectorAll('.food-card.selected').length > 0;
 
-    showFePopup(popupMessage, 'error');
-
-    btnMinumFe.disabled = true;
-    btnMinumFe.textContent = '⏰ Terlambat';
-
-    // Update stats
-    updateStatsDisplay();
+    if (hasSelectedFood) {
+      btnLanjut.classList.remove('btn-hidden');
+      btnLanjut.style.opacity = '1';
+      btnLanjut.style.transition = 'opacity 0.8s ease';
+      btnLanjut.addEventListener('click', function () {
+        playCoolClickSound();
+        showHasilAkhir();
+      });
+    } else {
+      btnLanjut.classList.add('btn-hidden');
+      btnLanjut.style.opacity = '0';
+    }
   }
 
-  function updateStatsDisplay() {
-    document.getElementById('kepatuhan-value').textContent = kepatuhan;
-    document.getElementById('hb-value').textContent = `${hbLevel} g/dL`;
-  }
-
-  function showFePopup(message, type = 'success') {
+  function showEdukasiPopup(message) {
     // Create popup element
     const popup = document.createElement('div');
-    popup.className = 'fe-popup';
-
-    const icon = type === 'success' ? '✅' : '❌';
-    const title = type === 'success' ? 'Berhasil!' : 'Perhatian!';
-
+    popup.className = 'edukasi-popup';
     popup.innerHTML = `
-    <div class="fe-popup-content">
-      <div class="fe-popup-progress">
-        <div class="fe-popup-progress-bar"></div>
+      <div class="popup-content">
+        <div class="popup-header">
+          <span class="popup-icon">💡</span>
+          <h3>Fakta Penting!</h3>
+        </div>
+        <div class="popup-message">
+          <p>${message}</p>
+        </div>
+        <button class="popup-close">Mengerti</button>
       </div>
-      <div class="fe-popup-header">
-        <span class="fe-popup-icon">${icon}</span>
-        <h3>${title}</h3>
-      </div>
-      <div class="fe-popup-message">
-        ${message
-          .split('\n')
-          .map((line) => `<p>${line}</p>`)
-          .join('')}
-      </div>
-      <button class="fe-popup-close">Lanjutkan</button>
-    </div>
-  `;
+    `;
 
     document.body.appendChild(popup);
 
-    // Start progress bar animation
-    const progressBar = popup.querySelector('.fe-popup-progress-bar');
-    setTimeout(() => {
-      progressBar.style.width = '100%';
-      progressBar.style.transition = 'width 5s linear';
-    }, 100);
-
-    // Auto continue setelah 5 detik
-    const autoHideTimer = setTimeout(() => {
-      if (popup.parentNode) {
-        hidePopup(popup);
-        showHasilAkhir();
-      }
-    }, 5000);
-
-    // Event listener untuk close button
-    const closeBtn = popup.querySelector('.fe-popup-close');
+    // Add event listener untuk close button
+    const closeBtn = popup.querySelector('.popup-close');
     closeBtn.addEventListener('click', function () {
       playCoolClickSound();
-      clearTimeout(autoHideTimer);
-      hidePopup(popup);
-      showHasilAkhir();
+      popup.style.animation = 'fadeOut 0.3s ease';
+      setTimeout(() => {
+        document.body.removeChild(popup);
+      }, 300);
     });
 
     // Click outside to close
     popup.addEventListener('click', function (e) {
+      playCoolClickSound();
       if (e.target === popup) {
-        playCoolClickSound();
-        clearTimeout(autoHideTimer);
-        hidePopup(popup);
-        showHasilAkhir();
+        popup.style.animation = 'fadeOut 0.3s ease';
+        setTimeout(() => {
+          document.body.removeChild(popup);
+        }, 300);
       }
     });
-
-    return popup;
   }
 
-  function hidePopup(popup) {
-    popup.style.animation = 'fadeOut 0.5s ease forwards';
-    setTimeout(() => {
-      if (popup.parentNode) {
-        document.body.removeChild(popup);
-      }
-    }, 500);
+  function updateEnergyBar() {
+    const energyFill = document.getElementById('energy-fill');
+    const energyText = document.getElementById('energy-text');
+
+    energyFill.style.width = `${energy}%`;
+    energyText.textContent = `${energy}%`;
+
+    // Update color based on energy
+    if (energy < 30) {
+      energyFill.style.background = 'linear-gradient(90deg, #FF3B30, #FF9500)';
+    } else if (energy < 70) {
+      energyFill.style.background = 'linear-gradient(90deg, #FF9500, #FFCC00)';
+    } else {
+      energyFill.style.background = 'linear-gradient(90deg, #4CD964, #2E8B57)';
+    }
   }
 
   function showHasilAkhir() {
-    sceneSimulasi.style.display = 'none';
+    sceneSarapan.style.display = 'none';
     sceneHasil.style.display = 'block';
-    const characterKuisImg = document.getElementById(
-      'main-character-hasil-img'
-    );
 
-    // Calculate total score
-    const totalScore = score + kepatuhan;
+    // HITUNG TOTAL PENGETAHUAN
+    const totalPengetahuan = score + bonusPengetahuan;
 
     // Tampilkan detail scoring
     const hasilMessage = document.getElementById('hasil-message');
@@ -621,17 +614,23 @@ document.addEventListener('DOMContentLoaded', function () {
           <span class="score-label">Skor Kuis:</span>
           <span class="score-value">${score}/${kuisData.length}</span>
         </div>
-        <div class="score-item-detail">
-          <span class="score-label">Skor Kepatuhan:</span>
-          <span class="score-value">${kepatuhan}</span>
+        ${
+          bonusPengetahuan > 0
+            ? `
+        <div class="score-item-detail bonus-item">
+          <span class="score-label">Bonus Makanan Bergizi:</span>
+          <span class="score-value bonus-value">+${bonusPengetahuan}</span>
         </div>
+        `
+            : ''
+        }
         <div class="score-item-detail total-item">
-          <span class="score-label">Total Skor:</span>
-          <span class="score-value total-value">${totalScore}</span>
+          <span class="score-label">Total Pengetahuan:</span>
+          <span class="score-value total-value">${totalPengetahuan}</span>
         </div>
         <div class="score-item-detail">
-          <span class="score-label">Hb Akhir:</span>
-          <span class="score-value">${hbLevel} g/dL</span>
+          <span class="score-label">Energi Tersisa:</span>
+          <span class="score-value">${energy}%</span>
         </div>
       </div>
     `;
@@ -639,50 +638,48 @@ document.addEventListener('DOMContentLoaded', function () {
     // Feedback
     const feedbackMessage = document.createElement('div');
     feedbackMessage.className = 'feedback-message';
+    const characterHasilAkhir = document.getElementById(
+      'main-character-hasil-img'
+    );
 
-    if (totalScore >= 12 && hbLevel >= 12) {
-      feedbackMessage.innerHTML =
-        '🎉 <strong>Luar biasa!</strong> Kamu sangat patuh minum tablet Fe!';
-      feedbackMessage.style.color = '#4CD964';
-      if (characterKuisImg) {
-        characterKuisImg.src = getCharacterImage(mainCharacter.id, 'senang');
-        characterKuisImg.classList.add('fade-in');
+    if (totalPengetahuan >= 3 && energy > 70) {
+      if (characterHasilAkhir) {
+        characterHasilAkhir.src = getCharacterImage(mainCharacter.id, 'senang');
+        characterHasilAkhir.classList.add('fade-in');
       }
-    } else if (totalScore >= 8) {
       feedbackMessage.innerHTML =
-        '👍 <strong>Bagus!</strong> Terus tingkatkan kepatuhan minum Fe!';
+        '🎉 <strong>Luar biasa!</strong> Kamu benar-benar memahami cara melawan anemia!';
+      feedbackMessage.style.color = '#4CD964';
+    } else if (totalPengetahuan >= 2) {
+      feedbackMessage.innerHTML =
+        '👍 <strong>Bagus!</strong> Terus belajar tentang anemia!';
       feedbackMessage.style.color = '#FF9500';
-      if (characterKuisImg) {
-        characterKuisImg.src = getCharacterImage(mainCharacter.id, 'normal');
-        characterKuisImg.classList.add('fade-in');
+      if (characterHasilAkhir) {
+        characterHasilAkhir.src = getCharacterImage(mainCharacter.id, 'normal');
+        characterHasilAkhir.classList.add('fade-in');
       }
     } else {
       feedbackMessage.innerHTML =
-        '💪 <strong>Jangan menyerah!</strong> Ingat selalu minum Fe tepat waktu!';
+        '💪 <strong>Jangan menyerah!</strong> Terus berusaha memahami anemia!';
       feedbackMessage.style.color = '#FF3B30';
-      if (characterKuisImg) {
-        characterKuisImg.src = getCharacterImage(mainCharacter.id, 'murung');
-        characterKuisImg.classList.add('fade-in');
+      if (characterHasilAkhir) {
+        characterHasilAkhir.src = getCharacterImage(mainCharacter.id, 'murung');
+        characterHasilAkhir.classList.add('fade-in');
       }
     }
 
     hasilMessage.appendChild(feedbackMessage);
 
-    // Button event listeners
-    document.getElementById('btn-restart').onclick = lanjutKeHari3;
-    document.getElementById('btn-kembali-hasil').onclick = kembaliKeHari1;
+    // Ubah tombol restart menjadi lanjut ke hari 2
+    const btnLanjut = document.getElementById('btn-restart');
+    btnLanjut.textContent = 'Lanjut ke Tahap Berikutnya';
+    btnLanjut.onclick = lanjutKeHari2;
   }
 
-  function lanjutKeHari3() {
-    playCoolClickSound();
-    // Redirect ke halaman hari 3
-    window.location.href = 'hari-3.html';
-  }
-
-  function kembaliKeHari1() {
-    // Redirect kembali ke hari 1
-    playCoolClickSound();
-    window.location.href = 'hari-1.html';
+  // TAMBAH: Function untuk lanjut ke Hari 2
+  function lanjutKeHari2() {
+    playGameClickSound();
+    window.location.href = 'hari2.html';
   }
 
   // Responsif
@@ -693,20 +690,19 @@ document.addEventListener('DOMContentLoaded', function () {
     const containerBtnStartMobile = document.getElementById(
       'container-btn-mobile'
     );
-
     if (window.innerWidth <= 768) {
-      if (containerBtn.parentNode === containerBtnStartDekstop) {
-        containerBtnStartMobile.append(containerBtn);
+      if (btnStart.parentNode === containerBtnStartDekstop) {
+        containerBtnStartMobile.append(btnStart);
       }
     } else {
-      if (containerBtn.parentNode === containerBtnStartMobile) {
-        containerBtnStartDekstop.append(containerBtn);
+      if (btnStart.parentNode === containerBtnStartMobile) {
+        containerBtnStartDekstop.append(btnStart);
       }
     }
   }
 
   playBackgroundMusic();
 
-  window.addEventListener('load', checkWindowSize);
+  checkWindowSize();
   window.addEventListener('resize', checkWindowSize);
 });
