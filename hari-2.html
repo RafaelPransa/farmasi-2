@@ -132,7 +132,7 @@
             <!-- Detail skor akan dimuat di sini oleh JavaScript -->
           </div>
 
-          <button id="btn-kembali" class="btn-secondary">
+          <button id="btn-kembali-hasil" class="btn-secondary">
             Kembali ke Hari 1
           </button>
           <button id="btn-restart" class="btn-primary">Lanjut ke Hari 3</button>
@@ -150,6 +150,21 @@
 
     <div id="container-btn-mobile"></div>
 
+    <audio id="background-music" loop>
+      <source src="assets/audio/background-music.mp3" type="audio/mp3" />
+    </audio>
+    <audio id="sound-click" preload="auto">
+      <source src="assets/audio/select-click.wav" type="audio/wav" />
+    </audio>
+    <audio id="cool-click" preload="auto">
+      <source src="assets/audio/cool-click.wav" type="audio/wav" />
+    </audio>
+    <audio id="game-click">
+      <source src="assets/audio/game-click.wav" type="audio/wav" />
+    </audio>
+    <audio id="notification-sound">
+      <source src="assets/audio/notification.wav" type="audio/wav" />
+    </audio>
     <script src="js/hari-2.js"></script>
   </body>
 </html>

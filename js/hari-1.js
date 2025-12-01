@@ -14,7 +14,6 @@ document.addEventListener('DOMContentLoaded', function () {
   const soundCoolClick = document.getElementById('cool-click');
   const soundGameClick = document.getElementById('game-click');
   const teksOpeningSound = document.getElementById('teks-opening-sound');
-  const notificationSound = document.getElementById('teks-opening-sound');
 
   let isSoundOn =
     localStorage.getItem('fesmart_sound') === 'off' ? false : true;
@@ -271,7 +270,6 @@ document.addEventListener('DOMContentLoaded', function () {
     let charIndex = 0;
 
     teksOpening.innerHTML = '';
-
     function typeLine() {
       if (lineIndex < lines.length) {
         if (charIndex === 0 && lineIndex > 0) {
@@ -290,6 +288,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
           if (currentChar === ':' && charIndex < 10) {
             teksOpening.innerHTML += '</strong>';
+          }
+
+          if (charIndex % 3 === 0) {
+            // Contoh: Panggil hanya setiap 2 karakter
+            window.playCoolClickSound();
           }
 
           charIndex++;
@@ -372,9 +375,22 @@ document.addEventListener('DOMContentLoaded', function () {
     btnNext.textContent =
       index === kuisData.length - 1 ? 'Selesai 🎉' : 'Selanjutnya ➡';
 
-    // Add event listeners for navigation
-    btnPrev.onclick = () => navigateKuis(-1);
-    btnNext.onclick = () => navigateKuis(1);
+    btnPrev.onclick = () => {
+      window.playCoolClickSound();
+      navigateKuis(-1);
+    };
+    btnNext.onclick = () => {
+      window.playCoolClickSound();
+      navigateKuis(1);
+    };
+
+    // suara ketika user pilih jawaban
+    const radioButtons = document.querySelectorAll('input[name="jawaban"]');
+    radioButtons.forEach((radio) => {
+      radio.addEventListener('change', function () {
+        window.playClickSound();
+      });
+    });
   }
 
   function navigateKuis(direction) {
@@ -384,12 +400,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!selectedAnswer && direction === 1) {
       alert('Pilih jawaban terlebih dahulu!');
-      playNotificationSound();
       return;
     }
 
     // Check answer if moving forward
     if (direction === 1 && selectedAnswer) {
+      playCoolClickSound();
       const isCorrect =
         parseInt(selectedAnswer.value) === kuisData[currentKuisIndex].jawaban;
       if (isCorrect) {
@@ -437,6 +453,7 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.food-card').forEach((card) => {
       card.addEventListener('click', function () {
         selectFood(this);
+        playClickSound();
       });
     });
     const characterKuisImg = document.getElementById(
@@ -515,6 +532,7 @@ document.addEventListener('DOMContentLoaded', function () {
       btnLanjut.style.opacity = '1';
       btnLanjut.style.transition = 'opacity 0.8s ease';
       btnLanjut.addEventListener('click', function () {
+        playCoolClickSound();
         showHasilAkhir();
       });
     } else {
@@ -545,6 +563,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Add event listener untuk close button
     const closeBtn = popup.querySelector('.popup-close');
     closeBtn.addEventListener('click', function () {
+      playCoolClickSound();
       popup.style.animation = 'fadeOut 0.3s ease';
       setTimeout(() => {
         document.body.removeChild(popup);
@@ -553,6 +572,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Click outside to close
     popup.addEventListener('click', function (e) {
+      playCoolClickSound();
       if (e.target === popup) {
         popup.style.animation = 'fadeOut 0.3s ease';
         setTimeout(() => {
@@ -658,7 +678,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // TAMBAH: Function untuk lanjut ke Hari 2
   function lanjutKeHari2() {
-    // Redirect ke halaman hari 2
+    playGameClickSound();
     window.location.href = 'hari-2.html';
   }
 
@@ -680,6 +700,8 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     }
   }
+
+  playBackgroundMusic();
 
   checkWindowSize();
   window.addEventListener('resize', checkWindowSize);

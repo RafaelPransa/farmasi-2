@@ -15,6 +15,90 @@ document.addEventListener('DOMContentLoaded', function () {
     '.scene-opening .container-teks-opening .container-btn'
   );
 
+  const bgMusic = document.getElementById('background-music');
+  const soundClick = document.getElementById('sound-click');
+  const soundCoolClick = document.getElementById('cool-click');
+  const soundGameClick = document.getElementById('game-click');
+  const teksOpeningSound = document.getElementById('teks-opening-sound');
+
+  let isSoundOn =
+    localStorage.getItem('fesmart_sound') === 'off' ? false : true;
+
+  // Fungsi Global untuk Mengontrol Suara
+  window.playClickSound = function () {
+    if (isSoundOn && soundClick) {
+      soundClick.currentTime = 0; // Memastikan suara dapat diputar cepat
+      soundClick
+        .play()
+        .catch((e) => console.log('Click sound failed to play:', e));
+    }
+  };
+
+  window.playCoolClickSound = function () {
+    if (isSoundOn && soundCoolClick) {
+      soundCoolClick.currentTime = 0; // Memastikan suara dapat diputar cepat
+      soundCoolClick
+        .play()
+        .catch((e) => console.log('Click sound failed to play:', e));
+    }
+  };
+
+  window.playGameClickSound = function () {
+    if (isSoundOn && soundGameClick) {
+      soundGameClick.currentTime = 0; // Memastikan suara dapat diputar cepat
+      soundGameClick
+        .play()
+        .catch((e) => console.log('Click sound failed to play:', e));
+    }
+  };
+
+  window.playTeksOpeningSound = function () {
+    if (isSoundOn && teksOpeningSound) {
+      teksOpeningSound.currentTime = 0; // Memastikan suara dapat diputar cepat
+      teksOpeningSound
+        .play()
+        .catch((e) => console.log('Click sound failed to play:', e));
+    }
+  };
+
+  window.playNotificationSound = function () {
+    if (isSoundOn && notificationSound) {
+      notificationSound.currentTime = 0; // Memastikan suara dapat diputar cepat
+      notificationSound
+        .play()
+        .catch((e) => console.log('Click sound failed to play:', e));
+    }
+  };
+
+  window.toggleSound = function () {
+    isSoundOn = !isSoundOn;
+    localStorage.setItem('fesmart_sound', isSoundOn ? 'on' : 'off');
+
+    // Update ikon
+    const soundBtn = document.querySelector(
+      '.control-btn[onclick="toggleSound()"]'
+    );
+    if (soundBtn) {
+      soundBtn.innerHTML = isSoundOn ? '🔊 Sound' : '🔇 Sound';
+    }
+
+    if (isSoundOn) {
+      playBackgroundMusic();
+    } else {
+      if (bgMusic) bgMusic.pause();
+    }
+  };
+
+  window.playBackgroundMusic = function () {
+    if (isSoundOn && bgMusic && bgMusic.paused) {
+      // Coba putar musik, ini mungkin gagal karena batasan browser (autoplay)
+      bgMusic.volume = 0.5; // Atur volume agar tidak terlalu keras
+      bgMusic
+        .play()
+        .catch((e) => console.log('Background music auto-play blocked:', e));
+    }
+  };
+
   // Load user data dari localStorage
   const userData = JSON.parse(localStorage.getItem('fesmart_user'));
   if (!userData) {
@@ -177,6 +261,10 @@ document.addEventListener('DOMContentLoaded', function () {
             teksOpening.innerHTML += '<strong>';
           }
 
+          if (charIndex % 3 === 0) {
+            playCoolClickSound();
+          }
+
           teksOpening.innerHTML += currentChar;
 
           if (currentChar === ':' && charIndex < 10) {
@@ -200,6 +288,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function startKuis() {
     // Hide opening scene
+    playGameClickSound();
     sceneOpening.style.opacity = '0';
     const characterKuisImg = document.getElementById('main-character-kuis-img');
     if (characterKuisImg) {
@@ -257,8 +346,22 @@ document.addEventListener('DOMContentLoaded', function () {
       index === kuisData.length - 1 ? 'Selesai 🎉' : 'Selanjutnya ➡';
 
     // Add event listeners for navigation
-    btnPrev.onclick = () => navigateKuis(-1);
-    btnNext.onclick = () => navigateKuis(1);
+    btnPrev.onclick = () => {
+      window.playCoolClickSound();
+      navigateKuis(-1);
+    };
+    btnNext.onclick = () => {
+      window.playCoolClickSound();
+      navigateKuis(1);
+    };
+
+    // suara ketika user pilih jawaban
+    const radioButtons = document.querySelectorAll('input[name="jawaban"]');
+    radioButtons.forEach((radio) => {
+      radio.addEventListener('change', function () {
+        window.playClickSound();
+      });
+    });
   }
 
   function navigateKuis(direction) {
@@ -353,6 +456,8 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function minumTabletFe() {
+    playCoolClickSound();
+
     if (gameCompleted) return;
 
     clearInterval(timer);
@@ -470,6 +575,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Event listener untuk close button
     const closeBtn = popup.querySelector('.fe-popup-close');
     closeBtn.addEventListener('click', function () {
+      playCoolClickSound();
       clearTimeout(autoHideTimer);
       hidePopup(popup);
       showHasilAkhir();
@@ -478,6 +584,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Click outside to close
     popup.addEventListener('click', function (e) {
       if (e.target === popup) {
+        playCoolClickSound();
         clearTimeout(autoHideTimer);
         hidePopup(popup);
         showHasilAkhir();
@@ -563,17 +670,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Button event listeners
     document.getElementById('btn-restart').onclick = lanjutKeHari3;
-    document.getElementById('btn-kembali').onclick = kembaliKeHari1;
+    document.getElementById('btn-kembali-hasil').onclick = kembaliKeHari1;
   }
 
   function lanjutKeHari3() {
+    playCoolClickSound();
     // Redirect ke halaman hari 3
     window.location.href = 'hari-3.html';
   }
 
   function kembaliKeHari1() {
     // Redirect kembali ke hari 1
-    window.location.href = 'index.html';
+    playCoolClickSound();
+    window.location.href = 'hari-1.html';
   }
 
   // Responsif
@@ -595,6 +704,8 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     }
   }
+
+  playBackgroundMusic();
 
   window.addEventListener('load', checkWindowSize);
   window.addEventListener('resize', checkWindowSize);
