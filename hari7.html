@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FeSmart - Hari 7</title>
+    <link rel="stylesheet" href="css/general.css" />
+    <link rel="stylesheet" href="css/hari7.css" />
+    <link rel="stylesheet" href="css/hari2.css" />
+  </head>
+  <body>
+    <div class="container-opening">
+      <div class="opening-background">
+        <h1 class="opening-title">Hari - 7</h1>
+        <div class="opening-subtitle">Penilaian Akhir</div>
+      </div>
+    </div>
+
+    <div class="scene-opening">
+      <div class="character" id="character-main">
+        <img id="main-character-img" src="" alt="Karakter Utama" />
+      </div>
+
+      <div class="container-teks-opening">
+        <div class="teks-opening"></div>
+        <div class="container-btn">
+          <button type="button" id="btn-start" class="btn-hidden">
+            Mulai Tes Akhir
+          </button>
+        </div>
+      </div>
+
+      <div class="character" id="character-guru">
+        <img src="assets/images/characters/guru.png" alt="Guru UKS" />
+      </div>
+    </div>
+
+    <div class="scene-kuis" id="scene-kuis-akhir" style="display: none">
+      <div class="character-kuis" id="character-main-kuis">
+        <img
+          id="main-character-kuis-img"
+          src=""
+          alt="Karakter Utama Berpikir"
+        />
+      </div>
+      <div class="kuis-container">
+        <div class="kuis-header">
+          <h2>🎯 Tes Pengetahuan Akhir (5 Soal)</h2>
+          <div class="progress-container">
+            <div class="progress-bar">
+              <div class="progress-fill" id="progress-fill"></div>
+            </div>
+            <span class="progress-text" id="progress-text">1/5</span>
+          </div>
+        </div>
+
+        <div class="kuis-content" id="kuis-content"></div>
+
+        <div class="navigation-buttons">
+          <button id="btn-prev" class="btn-nav btn-hidden">⬅ Sebelumnya</button>
+          <button id="btn-next" class="btn-nav">Selanjutnya ➡</button>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="scene-hasil-dashboard"
+      id="scene-hasil-dashboard"
+      style="display: none"
+    >
+      <div class="character-hasil" id="character-main-hasil-dashboard">
+        <img id="main-character-hasil-img" src="" alt="Karakter Utama Senang" />
+      </div>
+      <div class="hasil-container">
+        <div class="hasil-card dashboard-card">
+          <h2>🏆 Laporan Hasil Akhir FeSmart</h2>
+
+          <div class="dashboard-stats">
+            <div class="stat-score-item">
+              <h3>Skor Pengetahuan Akhir (X)</h3>
+              <p class="score-x" id="score-pengetahuan-akhir"></p>
+            </div>
+            <div class="stat-score-item">
+              <h3>Skor Kepatuhan (Y)</h3>
+              <p class="score-y" id="score-kepatuhan-akhir"></p>
+            </div>
+          </div>
+
+          <div class="grafik-simulasi">
+            <h3>Hubungan Pengetahuan (X) dan Kepatuhan (Y)</h3>
+            <canvas id="xyChart"></canvas>
+            <p class="message-chart-placeholder">
+              [Visualisasi Grafik Batang/Garis akan tampil di sini]
+            </p>
+          </div>
+
+          <div class="final-message" id="final-message"></div>
+
+          <button id="btn-selesai" class="btn-primary btn-large">
+            Selesai dan Kembali ke Menu Utama
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="game-controls">
+      <button class="control-btn" onclick="window.location.href='index.html'">
+        🏠 Halaman Utama
+      </button>
+      <button class="control-btn" onclick="toggleSound()">🔊 Sound</button>
+    </div>
+    <div id="container-btn-mobile"></div>
+    <audio id="background-music" loop>
+      <source src="assets/audio/background-music.mp3" type="audio/mp3" />
+    </audio>
+    <audio id="sound-click" preload="auto">
+      <source src="assets/audio/select-click.wav" type="audio/wav" />
+    </audio>
+    <audio id="cool-click" preload="auto">
+      <source src="assets/audio/cool-click.wav" type="audio/wav" />
+    </audio>
+    <audio id="game-click">
+      <source src="assets/audio/game-click.wav" type="audio/wav" />
+    </audio>
+    <audio id="notification-sound">
+      <source src="assets/audio/notification.wav" type="audio/wav" />
+    </audio>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+    <script src="js/hari7.js"></script>
+  </body>
+</html>

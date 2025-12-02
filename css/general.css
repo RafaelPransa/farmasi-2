@@ -525,8 +525,7 @@ body {
   flex-direction: column;
 }
 
-.character-kuis,
-.character-hasil {
+.character-kuis {
   position: absolute;
   top: 50%;
   left: -40px;
@@ -540,9 +539,9 @@ body {
 
 .character-sarapan {
   position: absolute;
-  top: 30%;
-  left: -140px;
-  transform: translateY(-30%);
+  top: 50%;
+  left: -40px;
+  transform: translateY(-50%);
   width: 400px;
   height: 400px;
   z-index: -1;
@@ -553,10 +552,22 @@ body {
 .character-simulasi {
   position: absolute;
   top: 50%;
-  right: 40px;
+  right: -40px;
   transform: translateY(-50%);
   width: 400px;
   height: 400px;
+  z-index: -1;
+  opacity: 0;
+  animation: fadeIn 0.8s ease forwards;
+}
+
+.character-hasil {
+  position: absolute;
+  top: 50%;
+  left: -120px;
+  transform: translateY(-50%);
+  width: 500px;
+  height: 500px;
   z-index: -1;
   opacity: 0;
   animation: fadeIn 0.8s ease forwards;
@@ -631,7 +642,7 @@ body {
 }
 
 .soal-kuis {
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255);
   padding: 20px;
   border-radius: 20px;
   width: 80%;
@@ -739,7 +750,7 @@ body {
   text-align: center;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
   max-width: 500px;
-  margin: 0 auto;
+  margin: 30px auto 0;
 }
 
 .hasil-card h2 {

@@ -33,7 +33,14 @@ document.addEventListener('DOMContentLoaded', function () {
   let isSoundOn =
     localStorage.getItem('fesmart_sound') === 'off' ? false : true;
 
-  // --- Utility Functions (Replicated from hari1.js/hari2.js for consistency) ---
+  window.playClickSound = function () {
+    if (isSoundOn && soundClick) {
+      soundClick.currentTime = 0; // Memastikan suara dapat diputar cepat
+      soundClick
+        .play()
+        .catch((e) => console.log('Click sound failed to play:', e));
+    }
+  };
   window.playCoolClickSound = () => {
     if (isSoundOn && soundCoolClick) {
       soundCoolClick.currentTime = 0;
@@ -46,12 +53,15 @@ document.addEventListener('DOMContentLoaded', function () {
       soundGameClick.play().catch((e) => console.log('Click failed:', e));
     }
   };
-  window.playBackgroundMusic = () => {
+  window.playBackgroundMusic = function () {
     if (isSoundOn && bgMusic && bgMusic.paused) {
       bgMusic.volume = 0.5;
-      bgMusic.play().catch((e) => console.log('BGM blocked:', e));
+      bgMusic
+        .play()
+        .catch((e) => console.log('Background music auto-play blocked:', e));
     }
   };
+
   window.toggleSound = () => {
     isSoundOn = !isSoundOn;
     localStorage.setItem('fesmart_sound', isSoundOn ? 'on' : 'off');
@@ -62,6 +72,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (isSoundOn) playBackgroundMusic();
     else if (bgMusic) bgMusic.pause();
   };
+
   function getCharacterImage(characterId, emotion = 'normal') {
     const characterImages = {
       siti: {
@@ -69,12 +80,16 @@ document.addEventListener('DOMContentLoaded', function () {
         murung: 'assets/images/characters/siti-murung.png',
         senang: 'assets/images/characters/siti-senang.png',
         berpikir: 'assets/images/characters/siti-berpikir.png',
+        capeOlahraga: 'assets/images/characters/siti-cape-olahraga.png',
+        senangOlahraga: 'assets/images/characters/siti-senang-olahraga.png',
       },
       sari: {
         normal: 'assets/images/characters/sari-normal.png',
         murung: 'assets/images/characters/sari-murung.png',
         senang: 'assets/images/characters/sari-senang.png',
         berpikir: 'assets/images/characters/sari-berpikir.png',
+        capeOlahraga: 'assets/images/characters/sari-cape-olahraga.png',
+        senangOlahraga: 'assets/images/characters/sari-senang-olahraga.png',
       },
     };
     return (
@@ -185,7 +200,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const dailyFoodOptions = [
     { name: 'Hati Ayam', icon: '🍗', energy: +30, type: 'positive' },
-    { name: 'Susu Cokelat', icon: '🥛', energy: +10, type: 'negative' }, // Contains calcium/lactose
+    { name: 'Junk Food', icon: '🍔', energy: -20, type: 'negative' }, // FIX: Nama Junk Food diperbaiki
   ];
 
   // --- Initialisation ---
@@ -323,7 +338,7 @@ document.addEventListener('DOMContentLoaded', function () {
           draggedElement &&
           draggedElement.dataset.category === targetCategory
         ) {
-          playCoolClickSound();
+          playClickSound();
           const droppedItemContainer = e.target
             .closest('.drop-area')
             .querySelector('.dropped-items');
@@ -431,6 +446,17 @@ document.addEventListener('DOMContentLoaded', function () {
     const activity = activityData[currentDay];
     currentEnergy = Math.max(0, currentEnergy + activity.energyChange);
 
+    const characterSimulasiImg = document.getElementById(
+      'main-character-simulasi-img'
+    );
+    if (characterSimulasiImg) {
+      characterSimulasiImg.src = getCharacterImage(
+        userData.character,
+        'capeOlahraga'
+      );
+      characterSimulasiImg.classList.add('fade-in'); // Tambahkan animasi jika perlu
+    }
+
     document.getElementById('daily-action-card').innerHTML = `
       <h3>${activity.title}</h3>
       <p>${activity.message} **Energi turun ${Math.abs(
@@ -438,17 +464,24 @@ document.addEventListener('DOMContentLoaded', function () {
     )}!**</p>
       <div class="food-options-small" id="food-options-small">
         ${dailyFoodOptions
-          .map(
-            (food, index) => `
-          <div class="food-card-small" data-food-id="${index}" data-energy="${
+          .map((food, index) => {
+            const energyText =
+              food.energy > 0 ? `+${food.energy}` : food.energy;
+            const energyColorClass = food.energy < 0 ? 'negative-energy' : ''; // FIX 1: Tambahkan kelas kondisional
+
+            return `
+              <div class="food-card-small" data-food-id="${index}" data-energy="${
               food.energy
             }" data-name="${food.name}" data-type="${food.type}" >
-            ${food.icon} ${food.name} <div class="energy-change">${
-              food.energy > 0 ? `+${food.energy}` : food.energy
+                ${food.icon} ${
+              food.name
+            } <div class="energy-change ${energyColorClass}">${
+              // FIX 1: Sisipkan kelas
+              energyText
             } Energy</div>
-          </div>
-        `
-          )
+              </div>
+            `;
+          })
           .join('')}
       </div>
       <p id="simulasi-feedback" style="margin-top: 20px; font-weight: bold;"></p>
@@ -482,11 +515,14 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function handleFoodSelection() {
-    playCoolClickSound();
+    playClickSound();
     const card = this;
     const energyChange = parseInt(card.dataset.energy);
     const isPositive = card.dataset.type === 'positive';
-    const simulasiFeedback = document.getElementById('simulasi-feedback');
+    const characterSimulasiImg = document.getElementById(
+      'main-character-simulasi-img'
+    ); // Ambil karakter
+    let emotion = 'capeOlahraga';
 
     document
       .querySelectorAll('.food-card-small')
@@ -495,14 +531,22 @@ document.addEventListener('DOMContentLoaded', function () {
 
     currentEnergy = Math.min(100, currentEnergy + energyChange);
 
+    const simulasiFeedback = document.getElementById('simulasi-feedback');
+
     if (isPositive) {
       complianceBonus = 1; // 1 point for good choice
       simulasiFeedback.textContent = activityData[currentDay].rewardMessage;
       simulasiFeedback.style.color = '#4cd964';
+      emotion = 'senangOlahraga'; // FIX 2: Koreksi typo menjadi senangOlahraga
     } else {
       complianceBonus = 0; // No compliance bonus
       simulasiFeedback.textContent = `❌ Pilihan kurang optimal. ${card.dataset.name} bukan yang terbaik untuk pulihkan Fe.`;
       simulasiFeedback.style.color = '#ff3b30';
+      emotion = 'capeOlahraga'; // Mengubah dari 'capeOlahraga' menjadi 'murung'
+    }
+
+    if (characterSimulasiImg) {
+      characterSimulasiImg.src = getCharacterImage(userData.character, emotion);
     }
 
     updateDailyStats();
@@ -559,6 +603,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.getElementById('btn-check-answer').onclick = checkKuisAnswer;
     document.getElementById('btn-finish-day').onclick = showHasilAkhir;
+
+    // suara ketika user pilih jawaban
+    const radioButtons = document.querySelectorAll('input[name="jawaban"]');
+    radioButtons.forEach((radio) => {
+      radio.addEventListener('change', function () {
+        window.playClickSound();
+      });
+    });
   }
 
   function checkKuisAnswer() {
@@ -678,14 +730,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Button Next Day Logic
     const btnNextDay = document.getElementById('btn-next-day');
     if (currentDay < 5) {
-      btnNextDay.textContent = `Lanjut ke Hari ${currentDay + 1}`;
-      btnNextDay.onclick = () => {
-        playGameClickSound();
-        currentDay++;
-        loadNextDay();
-      };
-    } else {
-      btnNextDay.textContent = 'Selesaikan Tahap 3-5';
+      btnNextDay.textContent = `Lanjut ke Hari 6`;
       btnNextDay.onclick = () => {
         playGameClickSound();
         window.location.href = 'hari6.html';
@@ -693,25 +738,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  function loadNextDay() {
-    loadDayState(currentDay);
-    // Reset UI state for the new day
-    sceneHasil.style.display = 'none';
-    containerOpening.style.transform = 'translateY(0)';
-    containerOpening.style.transition = 'none';
-    sceneOpening.style.opacity = '0';
-    sceneOpening.style.display = 'block';
-
-    // Force reload day content
-    setTimeout(() => {
-      containerOpening.style.transition = 'transform 1.5s ease';
-      containerOpening.style.transform = 'translateY(-100vh)';
-      setTimeout(() => {
-        sceneOpening.style.opacity = '1';
-        startOpeningScene();
-      }, 1600);
-    }, 100);
-  }
+  playBackgroundMusic();
 
   // --- Pengetahuan Auto-Lupa (Future Feature based on prompt) ---
   // Pengetahuan tinggi -> karakter otomatis lebih sering "ingat minum Fe" (Compliance logic in hari2/hari6-7)

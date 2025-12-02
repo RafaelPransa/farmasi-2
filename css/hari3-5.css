@@ -280,7 +280,7 @@ body {
 }
 
 .daily-action-card {
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 1);
   padding: 30px;
   border-radius: 20px;
   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
@@ -328,7 +328,14 @@ body {
 }
 
 .food-card-small .energy-change {
+  font-weight: bold;
+  color: #4cd964; /* Default green for positive */
   font-size: 0.9em;
+}
+
+/* Style khusus untuk Energy negatif */
+.food-card-small .energy-change.negative-energy {
+  color: var(--danger) !important; /* Menggunakan variabel merah global */
 }
 
 @media (max-width: 950px) {

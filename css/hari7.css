@@ -1,0 +1,193 @@
+/* Import general styles */
+@import url('general.css');
+
+body {
+  background: url(../assets/backgrounds/school.jpg);
+  background-size: cover;
+}
+
+/* Character Animations untuk Hari 7 */
+#character-main {
+  transform: translateX(-400px);
+  transition: transform 1.4s ease;
+}
+
+#character-main.slide-main {
+  transform: translateX(0);
+}
+
+#character-guru {
+  transform: translateX(400px);
+  transition: transform 1.4s ease;
+}
+
+#character-guru.slide-guru {
+  transform: translateX(0);
+}
+
+/* Dashboard Hasil Akhir */
+.scene-hasil-dashboard {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(rgba(135, 206, 235, 0.9)),
+    url(../assets/backgrounds/class.jpg);
+  background-size: cover;
+  z-index: 1000;
+  overflow-y: auto;
+}
+
+.dashboard-card {
+  max-width: 700px;
+  padding: 50px 30px;
+}
+
+.dashboard-stats {
+  display: flex;
+  justify-content: space-around;
+  margin: 30px 0;
+  padding: 20px;
+  border-bottom: 2px solid #f0f0f0;
+  flex-wrap: wrap;
+}
+
+.stat-score-item {
+  text-align: center;
+  flex: 1;
+  min-width: 150px;
+}
+
+.stat-score-item:first-child {
+  border-right: 1px solid #f0f0f0;
+}
+
+.score-x {
+  font-size: 2.5em;
+  font-weight: 800;
+  color: var(--accent-orange);
+}
+
+.score-y {
+  font-size: 2.5em;
+  font-weight: 800;
+  color: var(--success);
+}
+
+.grafik-simulasi {
+  margin: 30px 0;
+  padding: 20px;
+  border: 1px solid #e9ecef;
+  border-radius: 15px;
+  background: #f8f9fa;
+  max-width: 100%;
+}
+
+.grafik-simulasi h3 {
+  font-size: 1.5em;
+  margin-bottom: 20px;
+  color: var(--dark-blue);
+  text-align: center;
+}
+
+#xyChart {
+  /* Chart.js sudah responsif, ini untuk memastikan ia mengisi container */
+  width: 100% !important;
+  height: auto !important;
+}
+
+.message-chart-placeholder {
+  text-align: center;
+  font-style: italic;
+  color: #999;
+}
+
+.final-message {
+  margin: 30px 0;
+  padding: 20px;
+  background: rgba(102, 126, 234, 0.1);
+  border-radius: 15px;
+  border: 2px solid #667eea;
+  font-size: 1.4em;
+  font-weight: bold;
+  color: var(--primary-blue);
+  text-align: center;
+}
+
+/* ===== Media Queries untuk Responsif Hari 7 (PERBAIKAN) ===== */
+
+/* Tablet (max-width: 768px) */
+@media (max-width: 768px) {
+  /* Memperbaiki ukuran hasil-container/dashboard-card */
+  .hasil-container {
+    max-width: 90%; /* Menggunakan 90% lebar layar */
+    margin: 40px auto 20px; /* Tambahkan margin atas */
+  }
+
+  .dashboard-card {
+    /* Padding lebih kecil di tablet untuk menghemat ruang */
+    padding: 30px 20px;
+  }
+
+  .dashboard-stats {
+    /* Pindah ke kolom (stacked vertical) */
+    flex-direction: column;
+    padding: 10px 0;
+  }
+
+  .stat-score-item {
+    /* Penuh lebar */
+    width: 100%;
+    padding: 15px 0;
+  }
+
+  .stat-score-item:first-child {
+    /* Ganti border vertikal ke horizontal */
+    border-right: none;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .score-x,
+  .score-y {
+    /* Ukuran font lebih kecil di tablet */
+    font-size: 2em;
+  }
+
+  .grafik-simulasi h3 {
+    font-size: 1.3em;
+  }
+
+  .final-message {
+    font-size: 1.2em;
+  }
+}
+
+/* Mobile (max-width: 576px) */
+@media (max-width: 576px) {
+  .hasil-container {
+    max-width: 95%; /* Menggunakan 95% lebar layar */
+    padding: 20px 10px;
+  }
+
+  .dashboard-card {
+    /* Padding lebih kecil di mobile */
+    padding: 20px 15px;
+  }
+
+  .dashboard-card h2 {
+    font-size: 1.5em;
+  }
+
+  .score-x,
+  .score-y {
+    /* Ukuran font lebih kecil di mobile */
+    font-size: 1.8em;
+  }
+
+  .btn-primary.btn-large {
+    /* Tombol lebih kecil */
+    padding: 15px 30px;
+    font-size: 1.1em;
+  }
+}
