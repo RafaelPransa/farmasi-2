@@ -450,5 +450,26 @@ document.addEventListener('DOMContentLoaded', function () {
     window.location.href = 'hari7.html';
   }
 
+  function checkWindowSize() {
+    const containerBtnStartDekstop = document.querySelector(
+      '.container-teks-opening'
+    );
+    const containerBtnStartMobile = document.getElementById(
+      'container-btn-mobile'
+    );
+    if (window.innerWidth <= 768) {
+      if (btnStart.parentNode === containerBtnStartDekstop) {
+        containerBtnStartMobile.append(btnStart);
+      }
+    } else {
+      if (btnStart.parentNode === containerBtnStartMobile) {
+        containerBtnStartDekstop.append(btnStart);
+      }
+    }
+  }
+
   playBackgroundMusic();
+
+  checkWindowSize();
+  window.addEventListener('resize', checkWindowSize);
 });
