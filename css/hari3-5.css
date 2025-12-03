@@ -3,25 +3,6 @@ body {
   background-size: cover;
 }
 
-/* Character Animations */
-#character-main {
-  transform: translateX(-400px);
-  transition: transform 1.4s ease;
-}
-
-#character-main.slide-main {
-  transform: translateX(0);
-}
-
-#character-teman {
-  transform: translateX(400px);
-  transition: transform 1.4s ease;
-}
-
-#character-teman.slide-teman {
-  transform: translateX(0);
-}
-
 /* --- Pilih Menu Mini Game Styles --- */
 .scene-pilih-menu {
   position: fixed;

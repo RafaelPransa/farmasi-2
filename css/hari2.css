@@ -13,15 +13,6 @@ body {
   transform: translateX(0);
 }
 
-#character-teman {
-  transform: translateX(400px);
-  transition: transform 1.4s ease;
-}
-
-#character-teman.slide-teman {
-  transform: translateX(0);
-}
-
 /* Simulasi Scene Styles */
 .scene-simulasi {
   position: fixed;
@@ -312,14 +303,6 @@ body {
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  #character-nisa.slide-nisa {
-    transform: translateX(0) translateY(-50px);
-  }
-
-  #character-teman.slide-teman {
-    transform: translateX(97%) translateY(-40%);
-  }
-
   .stats-container {
     gap: 15px;
   }

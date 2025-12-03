@@ -143,34 +143,56 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const dailyKuisData = {
     3: {
-      soal: 'Mengapa Vitamin C penting saat mengonsumsi makanan/suplemen zat besi?',
+      soal: '1. Apa penyebab utama anemia pada remaja putri?',
       opsi: [
-        'Membuat rasa tablet Fe lebih enak',
-        'Membantu penyerapan zat besi menjadi lebih efektif',
-        'Mencegah efek samping pusing',
-        'Tidak ada hubungannya sama sekali',
+        'Kurang minum air putih',
+        'Kekurangan zat besi',
+        'Terlalu sering olahraga',
+        'Kebanyakan tidur',
       ],
       jawaban: 1,
       score: 1,
     },
     4: {
-      soal: 'Aktivitas fisik berlebihan dapat menyebabkan tubuh membutuhkan lebih banyak zat besi. Makanan apa yang paling cepat memulihkan energi dan zat besi?',
+      soal: '2. Kebiasaan makan apa yang dapat meningkatkan risiko anemia?',
       opsi: [
-        'Mie instan',
-        'Minuman soda',
-        'Hati ayam dan sayuran hijau',
-        'Permen karet',
+        'Jarang makan sumber protein hewani',
+        'Sering makan sayuran hijau',
+        'Minum jus buah setiap hari',
+        'Makan tiga kali sehari',
       ],
-      jawaban: 2,
+      jawaban: 0,
       score: 1,
     },
     5: {
-      soal: 'Jika kamu minum Fe dengan teh/kopi, apa dampaknya?',
+      soal: '3. Kondisi fisiologis apa yang membuat remaja putri lebih berisiko anemia?',
       opsi: [
-        'Zat besi lebih cepat diserap tubuh',
-        'Zat besi akan sulit diserap tubuh',
-        'Meningkatkan kadar gula darah',
-        'Tidak ada dampak',
+        'Pertumbuhan rambut',
+        'Menstruasi',
+        'Suhu tubuh menurun',
+        'Tidak suka olahraga',
+      ],
+      jawaban: 1,
+      score: 1,
+    },
+    6: {
+      soal: '4. Sikap mana yang dapat menyebabkan anemia?',
+      opsi: [
+        'Mengabaikan pola makan seimbang',
+        'Mengonsumsi tablet Fe sesuai anjuran',
+        'Rajin makan makanan tinggi zat besi',
+        'Olahraga teratur',
+      ],
+      jawaban: 0,
+      score: 1,
+    },
+    7: {
+      soal: '5. Mengapa minum teh setelah makan dapat meningkatkan risiko anemia?',
+      opsi: [
+        'Karena teh membuat kantuk',
+        'Karena teh menghambat penyerapan zat besi',
+        'Karena teh membuat perut kembung',
+        'Karena teh menambah nafsu makan',
       ],
       jawaban: 1,
       score: 1,
@@ -199,8 +221,8 @@ document.addEventListener('DOMContentLoaded', function () {
   };
 
   const dailyFoodOptions = [
-    { name: 'Hati Ayam', icon: '🍗', energy: +30, type: 'positive' },
-    { name: 'Junk Food', icon: '🍔', energy: -20, type: 'negative' }, // FIX: Nama Junk Food diperbaiki
+    { name: 'Hati Ayam', icon: '🍗', energy: +55, type: 'positive' },
+    { name: 'Junk Food', icon: '🍔', energy: -20, type: 'negative' },
   ];
 
   // --- Initialisation ---
@@ -255,6 +277,11 @@ document.addEventListener('DOMContentLoaded', function () {
     }, 500);
 
     setTimeout(() => {
+      characterMain.classList.add('character-idle-breathing');
+      teman.classList.add('character-idle-breathing');
+    }, 2000);
+
+    setTimeout(() => {
       showDialog();
     }, 1500);
 
@@ -262,18 +289,16 @@ document.addEventListener('DOMContentLoaded', function () {
       btnStart.classList.remove('btn-hidden');
       btnStart.style.opacity = '1';
       btnStart.style.transition = 'opacity 0.8s ease';
-      document.getElementById('btn-kembali').classList.remove('btn-hidden');
-      document.getElementById('btn-kembali').style.opacity = '1';
-      document.getElementById('btn-kembali').onclick = () =>
-        (window.location.href = 'hari2.html');
     }, 15000);
   }
 
   function showDialog() {
     const dialogLines = [
-      `TEMAN: "Hai ${userData.characterName}, hari ini kita fokus ke pola makan yang benar. Bukan cuma minum Fe, makanan juga penentu!"`,
+      `TEMAN ${userData.characterName.toUpperCase()}: "Hai ${
+        userData.characterName
+      }, hari ini kita fokus ke pola makan yang benar. Bukan cuma minum Fe, makanan juga penentu!"`,
       `${userData.characterName.toUpperCase()}: "Oh, jadi ada makanan yang mempercepat dan menghambat penyerapan zat besi ya?"`,
-      'TEMAN: "Betul sekali! Coba kamu buktikan pengetahuanmu di mini-game ini!"',
+      `TEMAN ${userData.characterName.toUpperCase()}: "Betul sekali! Coba kamu buktikan pengetahuanmu di mini-game ini!"`,
     ];
     typeWriterMultiple(dialogLines, 40, 800);
   }
@@ -470,15 +495,8 @@ document.addEventListener('DOMContentLoaded', function () {
             const energyColorClass = food.energy < 0 ? 'negative-energy' : ''; // FIX 1: Tambahkan kelas kondisional
 
             return `
-              <div class="food-card-small" data-food-id="${index}" data-energy="${
-              food.energy
-            }" data-name="${food.name}" data-type="${food.type}" >
-                ${food.icon} ${
-              food.name
-            } <div class="energy-change ${energyColorClass}">${
-              // FIX 1: Sisipkan kelas
-              energyText
-            } Energy</div>
+              <div class="food-card-small" data-food-id="${index}" data-energy="${food.energy}" data-name="${food.name}" data-type="${food.type}" >
+                ${food.icon} ${food.name}
               </div>
             `;
           })
@@ -738,9 +756,28 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
+  // Responsif
+  function checkWindowSize() {
+    const containerBtnStartDekstop = document.querySelector(
+      '.container-teks-opening'
+    );
+    const containerBtnStartMobile = document.getElementById(
+      'container-btn-mobile'
+    );
+
+    if (window.innerWidth <= 768) {
+      if (btnStart.parentNode === containerBtnStartDekstop) {
+        containerBtnStartMobile.append(btnStart);
+      }
+    } else {
+      if (btnStart.parentNode === containerBtnStartMobile) {
+        containerBtnStartDekstop.append(btnStart);
+      }
+    }
+  }
+
   playBackgroundMusic();
 
-  // --- Pengetahuan Auto-Lupa (Future Feature based on prompt) ---
-  // Pengetahuan tinggi -> karakter otomatis lebih sering "ingat minum Fe" (Compliance logic in hari2/hari6-7)
-  // Pengetahuan rendah -> karakter sering lupa -> kepatuhan turun (Will be simulated in final phase)
+  checkWindowSize();
+  window.addEventListener('resize', checkWindowSize);
 });

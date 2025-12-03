@@ -123,34 +123,54 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const kuisData = [
     {
-      soal: 'Apa cara paling efektif untuk mencegah anemia defisiensi besi pada remaja putri?',
+      soal: '1. Dampak anemia terhadap belajar adalah…',
       opsi: [
-        'Tidur lebih lama',
-        'Minum Tablet Fe (TTD) seminggu sekali',
-        'Banyak minum air putih',
-        'Mandi air dingin',
+        'Meningkatkan fokus',
+        'Mengurangi konsentrasi',
+        'Membuat lebih semangat',
+        'Mempercepat hafalan',
       ],
       jawaban: 1,
     },
     {
-      soal: 'Apa efek jangka panjang jika kadar Hb terus-menerus rendah?',
+      soal: '2. Anemia yang tidak ditangani dalam jangka panjang dapat berdampak pada…',
       opsi: [
-        'Kekebalan tubuh meningkat',
-        'Wajah menjadi lebih cerah',
-        'Gangguan pertumbuhan dan perkembangan kognitif',
-        'Tinggi badan bertambah',
+        'Peningkatan imunitas',
+        'Gangguan pada perkembangan fisik dan kognitif',
+        'Nafsu makan membaik',
+        'Tidur lebih berkualitas',
       ],
-      jawaban: 2,
+      jawaban: 1,
     },
     {
-      soal: 'Siapa yang paling berisiko tinggi terkena anemia di sekolah?',
+      soal: '3. Pada remaja putri, anemia dapat memengaruhi siklus menstruasi melalui…',
       opsi: [
-        'Remaja putra',
-        'Guru laki-laki',
-        'Remaja putri yang sedang menstruasi',
-        'Semua siswa memiliki risiko yang sama',
+        'Produksi hormon yang stabil',
+        'Siklus yang tidak teratur dan perdarahan lebih lama',
+        'Menstruasi lebih singkat',
+        'Tidak terjadi perubahan apapun',
       ],
-      jawaban: 2,
+      jawaban: 1,
+    },
+    {
+      soal: '4. Dampak anemia terhadap aktivitas fisik terlihat pada…',
+      opsi: [
+        'Peningkatan stamina dan kekuatan otot',
+        'Mudah lelah, sesak, dan detak jantung cepat saat beraktivitas',
+        'Nafas lebih stabil',
+        'Kekuatan otot meningkat',
+      ],
+      jawaban: 1,
+    },
+    {
+      soal: '5. Jika anemia terjadi saat masa pertumbuhan, salah satu akibatnya adalah…',
+      opsi: [
+        'Pertumbuhan tinggi badan lebih cepat dari rata-rata',
+        'Prestasi akademik dan perkembangan belajar menurun',
+        'Produksi sel darah merah meningkat tanpa batas',
+        'Nafsu tidur berlebihan tanpa gangguan lain',
+      ],
+      jawaban: 1,
     },
   ];
 
@@ -179,8 +199,6 @@ document.addEventListener('DOMContentLoaded', function () {
         startOpeningScene();
       }, 1600);
     }, 2000);
-    document.getElementById('btn-kembali').onclick = () =>
-      (window.location.href = 'hari3-5.html');
   }
 
   function startOpeningScene() {
@@ -197,15 +215,13 @@ document.addEventListener('DOMContentLoaded', function () {
       btnStart.classList.remove('btn-hidden');
       btnStart.style.opacity = '1';
       btnStart.style.transition = 'opacity 0.8s ease';
-      document.getElementById('btn-kembali').classList.remove('btn-hidden');
-    }, 19000);
+    }, 13000);
   }
 
   function showDialog() {
     const dialogLines = [
       'GURU UKS: "Selamat pagi, hari ini kita akan mengevaluasi pemahamanmu tentang pentingnya pencegahan anemia."',
       `${mainCharacter.name.toUpperCase()}: "Siap, Bu! Saya akan berusaha menjawab semua pertanyaan tentang pencegahan anemia."`,
-      'GURU UKS: "Bagus! Pengetahuan adalah langkah awal. Setelah itu, kita akan praktikkan komitmenmu dalam kegiatan minum Fe mingguan!"',
     ];
     typeWriterMultiple(dialogLines, 40, 800);
   }
@@ -263,18 +279,11 @@ document.addEventListener('DOMContentLoaded', function () {
     `;
 
     // Update navigation buttons
-    const btnPrev = document.getElementById('btn-prev');
     const btnNext = document.getElementById('btn-next');
 
-    btnPrev.style.display = index === 0 ? 'none' : 'block';
-    btnPrev.classList.toggle('btn-hidden', index === 0);
     btnNext.textContent =
       index === kuisData.length - 1 ? 'Lanjut ke Simulasi' : 'Selanjutnya ➡';
 
-    btnPrev.onclick = () => {
-      window.playCoolClickSound();
-      navigateKuis(-1);
-    };
     btnNext.onclick = () => {
       window.playCoolClickSound();
       navigateKuis(1);

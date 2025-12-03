@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const sceneKuis = document.querySelector('.scene-kuis');
   const sceneSarapan = document.querySelector('.scene-sarapan');
   const sceneHasil = document.querySelector('.scene-hasil');
-  const characterMain = document.getElementById('character-main'); // Ganti id
+  const characterMain = document.getElementById('character-main');
   const guru = document.getElementById('character-guru');
   const teksOpening = document.querySelector('.teks-opening');
   const btnStart = document.getElementById('btn-start');
@@ -148,34 +148,49 @@ document.addEventListener('DOMContentLoaded', function () {
   // Data kuis
   const kuisData = [
     {
-      soal: 'Apa itu anemia?',
+      soal: '1. Apa itu anemia?',
       opsi: [
-        'Kekurangan sel darah putih',
-        'Kekurangan sel darah merah atau hemoglobin',
+        'Kekurangan zat cair',
+        'Kondisi kurangnya sel darah merah atau hemoglobin',
         'Kelebihan gula dalam darah',
-        'Infeksi pada saluran pernapasan',
+        'Infeksi virus',
       ],
       jawaban: 1,
     },
     {
-      soal: 'Apa penyebab utama anemia?',
+      soal: '2. Zat gizi apa yang paling berperan dalam mencegah anemia?',
+      opsi: ['Vitamin C', 'Kalsium', 'Zat besi', 'Lemak'],
+      jawaban: 2,
+    },
+    {
+      soal: '3. Siapa kelompok yang paling berisiko mengalami anemia?',
       opsi: [
-        'Kurang olahraga',
-        'Kekurangan zat besi',
-        'Terlalu banyak tidur',
-        'Kebanyakan main game',
+        'Remaja putri',
+        'Laki-laki dewasa',
+        'Anak laki-laki',
+        'Lansia laki-laki',
+      ],
+      jawaban: 0,
+    },
+    {
+      soal: '4. Cara sederhana untuk mencegah anemia adalah…',
+      opsi: [
+        'Mengurangi makan',
+        'Mengonsumsi makanan kaya zat besi',
+        'Minum kopi setelah makan',
+        'Menghindari olahraga',
       ],
       jawaban: 1,
     },
     {
-      soal: 'Apa tanda-tanda anemia?',
+      soal: '5. Tablet Fe diberikan kepada remaja putri untuk…',
       opsi: [
-        'Wajah memerah dan energi berlebihan',
-        'Lemas, pucat, dan sulit konsentrasi',
-        'Berat badan naik drastis',
-        'Tidak ada gejala sama sekali',
+        'Menambah berat badan',
+        'Mengurangi nafsu makan',
+        'Menambah asupan zat besi',
+        'Menghilangkan pusing',
       ],
-      jawaban: 1,
+      jawaban: 2,
     },
   ];
 
@@ -365,20 +380,11 @@ document.addEventListener('DOMContentLoaded', function () {
   
     `;
 
-    // Update navigation buttons
-    const btnPrev = document.getElementById('btn-prev');
     const btnNext = document.getElementById('btn-next');
-
-    btnPrev.style.display = index === 0 ? 'none' : 'block';
-    btnPrev.classList.toggle('btn-hidden', index === 0);
 
     btnNext.textContent =
       index === kuisData.length - 1 ? 'Selesai 🎉' : 'Selanjutnya ➡';
 
-    btnPrev.onclick = () => {
-      window.playCoolClickSound();
-      navigateKuis(-1);
-    };
     btnNext.onclick = () => {
       window.playCoolClickSound();
       navigateKuis(1);

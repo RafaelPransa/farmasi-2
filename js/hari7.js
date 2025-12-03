@@ -234,14 +234,13 @@ document.addEventListener('DOMContentLoaded', function () {
       btnStart.classList.remove('btn-hidden');
       btnStart.style.opacity = '1';
       btnStart.style.transition = 'opacity 0.8s ease';
-    }, 20000);
+    }, 15000);
   }
 
   function showDialog() {
     const dialogLines = [
       'GURU UKS: "Selamat! Ini adalah hari terakhir perjalanan FeSmart. Saatnya kamu membuktikan semua yang telah kamu pelajari."',
       `${mainCharacter.name.toUpperCase()}: "Saya siap, Bu Guru! Saya sudah merasa jauh lebih berenergi dan punya banyak pengetahuan baru!"`,
-      'GURU UKS: "Bagus! Tes akhir ini akan mengukur seberapa tinggi pengetahuanmu, dan kita akan lihat hubungannya dengan tingkat kepatuhanmu."',
     ];
     typeWriterMultiple(dialogLines, 40, 800);
   }
@@ -294,18 +293,11 @@ document.addEventListener('DOMContentLoaded', function () {
     `;
 
     // Update navigation buttons
-    const btnPrev = document.getElementById('btn-prev');
     const btnNext = document.getElementById('btn-next');
 
-    btnPrev.style.display = index === 0 ? 'none' : 'block';
-    btnPrev.classList.toggle('btn-hidden', index === 0);
     btnNext.textContent =
-      index === totalSoal - 1 ? 'Selesaikan Tes' : 'Selanjutnya ➡';
+      index === totalSoal - 1 ? 'Selesaikan Tes' : 'Selanjutnya';
 
-    btnPrev.onclick = () => {
-      window.playCoolClickSound();
-      navigateKuis(-1);
-    };
     btnNext.onclick = () => {
       window.playCoolClickSound();
       navigateKuis(1);
@@ -356,14 +348,10 @@ document.addEventListener('DOMContentLoaded', function () {
     // 1. Ambil Data Akhir
     const totalKnowledgePoints = userData.totalKnowledge + finalKuisScore;
     const finalComplianceScore = userData.totalKepatuhan;
-    const maxCompliance = 20; // Example max: 10 (Hari 2) + 10 (Hari 6) + 3*1 (Hari 3-5) = 13 (Adjusted max for simpler scoring)
-    const maxKnowledge = masterKuisPool.length + 5; // Example max knowledge points
-
-    // Hitung Skor Pengetahuan Rata-rata (Disesuaikan)
-    // Rata-rata Pengetahuan = (Total Pengetahuan / Max Pengetahuan) * 100
-    // Karena ini adalah skor akhir, kita gunakan total skor pengetahuan saja.
-    const scorePengetahuan = totalKnowledgePoints; // Total poin pengetahuan
-    const maxKepatuhan = 70; // 10 (H2) + 10 (H6) + 3*10 (H3-5) + 20 (Simulasi)
+    const maxCompliance = 20;
+    const maxKnowledge = masterKuisPool.length + 5; //
+    const scorePengetahuan = totalKnowledgePoints;
+    const maxKepatuhan = 70;
 
     // 2. Update Dashboard UI
     document.getElementById(

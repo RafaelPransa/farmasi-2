@@ -144,34 +144,34 @@ document.addEventListener('DOMContentLoaded', function () {
   // Data kuis hari 2
   const kuisData = [
     {
-      soal: 'Kapan waktu yang tepat untuk minum tablet Fe?',
+      soal: '1. Salah satu tanda umum anemia adalah…',
       opsi: [
-        'Pagi hari sebelum makan',
-        'Sesudah makan siang atau malam',
-        'Tengah malam sebelum tidur',
-        'Kapan saja tidak ada aturan',
+        'Mudah lelah',
+        'Nafsu makan meningkat',
+        'Tidak bisa tidur',
+        'Berat badan naik',
       ],
+      jawaban: 0,
+    },
+    {
+      soal: '2. Kulit pucat pada remaja putri dapat menjadi tanda…',
+      opsi: ['Dehidrasi', 'Anemia', 'Kebanyakan tidur', 'Alergi makanan'],
       jawaban: 1,
     },
     {
-      soal: 'Apa yang harus dihindari setelah minum tablet Fe?',
-      opsi: [
-        'Minum air putih',
-        'Minum teh atau kopi',
-        'Makan buah-buahan',
-        'Berolahraga ringan',
-      ],
+      soal: '3. Sering merasa pusing saat berdiri bisa menjadi gejala…',
+      opsi: ['Hipertensi', 'Anemia', 'Flu', 'Cacingan saja'],
       jawaban: 1,
     },
     {
-      soal: 'Berapa frekuensi minum tablet Fe yang dianjurkan untuk remaja putri?',
-      opsi: [
-        'Setiap hari',
-        'Seminggu sekali',
-        'Bulan sekali',
-        'Hanya saat menstruasi',
-      ],
-      jawaban: 1,
+      soal: '4. Detak jantung cepat pada siswi bisa terjadi karena…',
+      opsi: ['Olahraga teratur', 'Kelebihan zat besi', 'Anemia', 'Tidur cukup'],
+      jawaban: 2,
+    },
+    {
+      soal: '5. Nafas terasa pendek dan mudah sesak merupakan tanda…',
+      opsi: ['Anemia', 'Kekenyangan', 'Hiperaktif', 'Kejang otot'],
+      jawaban: 0,
     },
   ];
 
@@ -202,8 +202,6 @@ document.addEventListener('DOMContentLoaded', function () {
         startOpeningScene();
       }, 1600);
     }, 2000);
-
-    document.getElementById('btn-kembali').onclick = kembaliKeHari1;
   }
 
   function startOpeningScene() {
@@ -223,9 +221,6 @@ document.addEventListener('DOMContentLoaded', function () {
       btnStart.classList.remove('btn-hidden');
       btnStart.style.opacity = '1';
       btnStart.style.transition = 'opacity 0.8s ease';
-      btnBack.classList.remove('btn-hidden');
-      btnBack.style.opacity = '1';
-      btnBack.style.transition = 'opacity 0.8s ease';
     }, 15000);
   }
 
@@ -235,7 +230,7 @@ document.addEventListener('DOMContentLoaded', function () {
         mainCharacter.name
       }, aku lihat kamu masih sering lesu. Aku dulu juga gitu lho!"`,
       `${mainCharacter.name.toUpperCase()}: "Iya nih, gimana caranya kamu bisa lebih berenergi sekarang?"`,
-      `TEMAN ${mainCharacter.name.toUpperCase()}: "Aku rutin minum tablet Fe setiap minggu di sekolah. Coba kamu ikutan. Tapi harus tahu aturan minumnya ya, biar efektif!"`,
+      `TEMAN ${mainCharacter.name.toUpperCase()}: "Coba kamu minum tablet Feikutan. Tapi harus tahu aturan minumnya ya, biar efektif!"`,
     ];
 
     typeWriterMultiple(dialogLines, 40, 800);
@@ -336,20 +331,12 @@ document.addEventListener('DOMContentLoaded', function () {
     `;
 
     // Update navigation buttons
-    const btnPrev = document.getElementById('btn-prev');
     const btnNext = document.getElementById('btn-next');
-
-    btnPrev.style.display = index === 0 ? 'none' : 'block';
-    btnPrev.classList.toggle('btn-hidden', index === 0);
 
     btnNext.textContent =
       index === kuisData.length - 1 ? 'Selesai 🎉' : 'Selanjutnya ➡';
 
     // Add event listeners for navigation
-    btnPrev.onclick = () => {
-      window.playCoolClickSound();
-      navigateKuis(-1);
-    };
     btnNext.onclick = () => {
       window.playCoolClickSound();
       navigateKuis(1);
@@ -695,18 +682,18 @@ document.addEventListener('DOMContentLoaded', function () {
     );
 
     if (window.innerWidth <= 768) {
-      if (containerBtn.parentNode === containerBtnStartDekstop) {
-        containerBtnStartMobile.append(containerBtn);
+      if (btnStart.parentNode === containerBtnStartDekstop) {
+        containerBtnStartMobile.append(btnStart);
       }
     } else {
-      if (containerBtn.parentNode === containerBtnStartMobile) {
-        containerBtnStartDekstop.append(containerBtn);
+      if (btnStart.parentNode === containerBtnStartMobile) {
+        containerBtnStartDekstop.append(btnStart);
       }
     }
   }
 
   playBackgroundMusic();
 
-  window.addEventListener('load', checkWindowSize);
+  checkWindowSize();
   window.addEventListener('resize', checkWindowSize);
 });
