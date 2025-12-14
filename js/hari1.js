@@ -203,7 +203,7 @@ document.addEventListener('DOMContentLoaded', function () {
       message: `Pilihan bagus! 🥚 Telur kaya zat besi dan protein yang membantu melawan anemia`,
       type: 'positive',
       popup:
-        'Anemia terjadi karena kekurangan zat besi. Yuk, mulai kenali penyebabnya!',
+        'Pilihan yang bagus, telur kaya zat besi dan protein sehingga membantu melawan anemia',
     },
     roti: {
       nama: 'Roti Gandum',
@@ -611,6 +611,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // HITUNG TOTAL PENGETAHUAN
     const totalPengetahuan = score + bonusPengetahuan;
+
+    userData.progress['hari1'] = {
+      completed: true,
+      score: totalPengetahuan, // Skor total hari 1
+      knowledge: score, // Skor kuis
+      compliance: bonusPengetahuan, // Skor kepatuhan (makanan sehat)
+      energy: energy,
+    };
+
+    userData.totalKnowledge = totalPengetahuan; // Set total pengetahuan awal
+    // Tidak ada totalCompliance/totalKepatuhan di sini, akan dimulai di hari 2.
+    localStorage.setItem('fesmart_user', JSON.stringify(userData));
 
     // Tampilkan detail scoring
     const hasilMessage = document.getElementById('hasil-message');

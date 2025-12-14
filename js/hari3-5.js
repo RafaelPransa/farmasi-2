@@ -1,16 +1,15 @@
 document.addEventListener('DOMContentLoaded', function () {
   // --- Global Setup ---
   const userData = JSON.parse(localStorage.getItem('fesmart_user'));
-  if (!userData) {
-    window.location.href = 'index.html';
-    return;
-  }
+
 
   // Current State
   let currentDay = 3; // Start from Day 3
   let currentEnergy = 55;
+  // Ambil total pengetahuan dari hari sebelumnya, JANGAN diakumulasi di sini
   let currentKnowledge = userData.totalKnowledge || 0;
-  let complianceBonus = 0; // Compliance points from Fe intake (from Hari 2 logic)
+  let complianceBonus = 0;
+  let scorePilihMenu = 0; // BARU: Tambahkan variabel untuk menyimpan skor mini game
 
   // Game Elements
   const containerOpening = document.querySelector('.container-opening');
@@ -141,22 +140,23 @@ document.addEventListener('DOMContentLoaded', function () {
     { name: 'Junk Food', icon: '🍔', category: 'penghambat' },
   ].sort(() => Math.random() - 0.5); // Shuffle options
 
-  const dailyKuisData = {
-    3: {
+  // Diperbarui: 5 soal kuis harian
+  const masterDailyKuis = [
+    {
       soal: '1. Apa penyebab utama anemia pada remaja putri?',
       opsi: [
         'Kurang minum air putih',
-        'Kekurangan zat besi',
+        'Kekurangan zat besi', // Jawaban Benar (Indeks 1)
         'Terlalu sering olahraga',
         'Kebanyakan tidur',
       ],
       jawaban: 1,
       score: 1,
     },
-    4: {
+    {
       soal: '2. Kebiasaan makan apa yang dapat meningkatkan risiko anemia?',
       opsi: [
-        'Jarang makan sumber protein hewani',
+        'Jarang makan sumber protein hewani', // Jawaban Benar (Indeks 0)
         'Sering makan sayuran hijau',
         'Minum jus buah setiap hari',
         'Makan tiga kali sehari',
@@ -164,21 +164,21 @@ document.addEventListener('DOMContentLoaded', function () {
       jawaban: 0,
       score: 1,
     },
-    5: {
+    {
       soal: '3. Kondisi fisiologis apa yang membuat remaja putri lebih berisiko anemia?',
       opsi: [
         'Pertumbuhan rambut',
-        'Menstruasi',
+        'Menstruasi', // Jawaban Benar (Indeks 1)
         'Suhu tubuh menurun',
         'Tidak suka olahraga',
       ],
       jawaban: 1,
       score: 1,
     },
-    6: {
+    {
       soal: '4. Sikap mana yang dapat menyebabkan anemia?',
       opsi: [
-        'Mengabaikan pola makan seimbang',
+        'Mengabaikan pola makan seimbang', // Jawaban Benar (Indeks 0)
         'Mengonsumsi tablet Fe sesuai anjuran',
         'Rajin makan makanan tinggi zat besi',
         'Olahraga teratur',
@@ -186,18 +186,28 @@ document.addEventListener('DOMContentLoaded', function () {
       jawaban: 0,
       score: 1,
     },
-    7: {
+    {
       soal: '5. Mengapa minum teh setelah makan dapat meningkatkan risiko anemia?',
       opsi: [
         'Karena teh membuat kantuk',
-        'Karena teh menghambat penyerapan zat besi',
+        'Karena teh menghambat penyerapan zat besi', // Jawaban Benar (Indeks 1)
         'Karena teh membuat perut kembung',
         'Karena teh menambah nafsu makan',
       ],
       jawaban: 1,
       score: 1,
     },
+  ];
+
+  const dailyKuisData = {
+    3: masterDailyKuis,
+    4: masterDailyKuis,
+    5: masterDailyKuis,
   };
+
+  // Variabel untuk melacak kuis (karena sekarang ada 5 soal per hari)
+  let currentKuisIndex = 0; // Index soal kuis harian (0-4)
+  let kuisScoreHarian = 0; // Skor yang didapat dari 5 soal kuis hari ini
 
   const activityData = {
     3: {
@@ -277,8 +287,12 @@ document.addEventListener('DOMContentLoaded', function () {
     }, 500);
 
     setTimeout(() => {
-      characterMain.classList.add('character-idle-breathing');
-      teman.classList.add('character-idle-breathing');
+      // FIX 1: Pastikan elemen karakter utama dan teman didefinisikan di sini jika diperlukan
+      const characterMain = document.getElementById('character-main');
+      const teman = document.getElementById('character-teman');
+      if (characterMain)
+        characterMain.classList.add('character-idle-breathing');
+      if (teman) teman.classList.add('character-idle-breathing');
     }, 2000);
 
     setTimeout(() => {
@@ -323,8 +337,11 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     const optionsContainer = document.getElementById('menu-options-container');
     optionsContainer.innerHTML = '';
-    document.getElementById('drop-penghambat').innerHTML = '';
-    document.getElementById('drop-zat-besi').innerHTML = '';
+    // FIX 2: Clear drop areas properly
+    const dropZatBesi = document.getElementById('drop-zat-besi');
+    const dropPenghambat = document.getElementById('drop-penghambat');
+    if (dropZatBesi) dropZatBesi.innerHTML = '';
+    if (dropPenghambat) dropPenghambat.innerHTML = '';
     document.getElementById('menu-game-feedback').textContent = '';
     document.getElementById('btn-submit-menu').disabled = false;
     document.getElementById('btn-submit-menu').textContent =
@@ -353,41 +370,58 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Drop events
     document.querySelectorAll('.drop-area').forEach((area) => {
-      area.addEventListener('drop', (e) => {
-        e.preventDefault();
-        const data = e.dataTransfer.getData('text/plain');
-        const draggedElement = document.getElementById(data);
-        const targetCategory = e.target.closest('.drop-area').dataset.category;
+      // Menghapus listener lama sebelum menambahkan yang baru
+      area.removeEventListener('drop', handleDrop);
+      area.removeEventListener('dragover', preventDefault);
 
-        if (
-          draggedElement &&
-          draggedElement.dataset.category === targetCategory
-        ) {
-          playClickSound();
-          const droppedItemContainer = e.target
-            .closest('.drop-area')
-            .querySelector('.dropped-items');
-          const droppedItem = document.createElement('span');
-          droppedItem.className = `dropped-item ${
-            targetCategory === 'zat-besi' || targetCategory === 'zat-besi-plus'
-              ? 'positive'
-              : 'negative'
-          }`;
-          droppedItem.textContent = draggedElement.dataset.name;
-          droppedItemContainer.appendChild(droppedItem);
-          draggedElement.remove(); // Remove from options
-        } else if (draggedElement) {
-          // Wrong drop
-          playGameClickSound();
-          document.getElementById('menu-game-feedback').textContent =
-            '⚠️ Menu tidak cocok! Coba lagi.';
-          document.getElementById('menu-game-feedback').className =
-            'game-feedback error';
-        }
-      });
+      area.addEventListener('drop', handleDrop);
+      area.addEventListener('dragover', preventDefault);
     });
 
     document.getElementById('btn-submit-menu').onclick = checkMenuGame;
+  }
+
+  // Fungsi pembantu untuk Drop (agar bisa dihapus event listenernya)
+  function preventDefault(e) {
+    e.preventDefault();
+  }
+
+  function handleDrop(e) {
+    e.preventDefault();
+    const data = e.dataTransfer.getData('text/plain');
+    const draggedElement = document.getElementById(data);
+    const targetDropArea = e.target.closest('.drop-area');
+
+    if (!targetDropArea) return; // Pastikan drop di area yang benar
+
+    const targetCategory = targetDropArea.dataset.category;
+
+    if (draggedElement && draggedElement.dataset.category === targetCategory) {
+      playClickSound();
+      const droppedItemsContainer =
+        targetDropArea.querySelector('.dropped-items');
+
+      // Buat item baru untuk visual di area drop
+      const droppedItem = document.createElement('span');
+      droppedItem.className = `dropped-item ${
+        targetCategory === 'zat-besi' || targetCategory === 'zat-besi-plus'
+          ? 'positive'
+          : 'negative'
+      }`;
+      droppedItem.textContent = draggedElement.dataset.name;
+
+      droppedItemsContainer.appendChild(droppedItem);
+      draggedElement.remove(); // Hapus dari options
+
+      document.getElementById('menu-game-feedback').textContent = ''; // Hapus feedback error jika berhasil
+    } else if (draggedElement) {
+      // Wrong drop
+      playGameClickSound();
+      document.getElementById('menu-game-feedback').textContent =
+        '⚠️ Menu tidak cocok! Coba lagi.';
+      document.getElementById('menu-game-feedback').className =
+        'game-feedback error';
+    }
   }
 
   function checkMenuGame() {
@@ -398,6 +432,7 @@ document.addEventListener('DOMContentLoaded', function () {
     let correctPicks = 0;
     let totalItems = 0;
 
+    // FIX 3: Gunakan dropped-items container untuk query
     const itemsZatBesi = document
       .getElementById('drop-zat-besi')
       .querySelectorAll('.dropped-item');
@@ -425,21 +460,12 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
 
-    // Add bonus logic for special items (e.g. Jeruk is Fe+Vit C, so it's positive)
-    menuGameData
-      .filter((item) => item.category === 'zat-besi-plus')
-      .forEach((item) => {
-        totalItems++;
-        if (Array.from(itemsZatBesi).some((e) => e.textContent === item.name)) {
-          correctPicks++;
-        }
-      });
-
-    let scorePilihMenu =
+    // Menghitung skor mini game
+    scorePilihMenu =
       correctPicks > 0 ? Math.floor((correctPicks / totalItems) * 2) : 0; // Max 2 points
 
-    // Update total knowledge for temporary feedback
-    currentKnowledge += scorePilihMenu;
+    // Pengetahuan harian belum diakumulasi, hanya skor mini game yang didapat.
+    // Akumulasi total knowledge dilakukan di showHasilAkhir.
 
     let feedback = '';
     if (scorePilihMenu >= 2) {
@@ -492,7 +518,7 @@ document.addEventListener('DOMContentLoaded', function () {
           .map((food, index) => {
             const energyText =
               food.energy > 0 ? `+${food.energy}` : food.energy;
-            const energyColorClass = food.energy < 0 ? 'negative-energy' : ''; // FIX 1: Tambahkan kelas kondisional
+            const energyColorClass = food.energy < 0 ? 'negative-energy' : '';
 
             return `
               <div class="food-card-small" data-food-id="${index}" data-energy="${food.energy}" data-name="${food.name}" data-type="${food.type}" >
@@ -529,7 +555,9 @@ document.addEventListener('DOMContentLoaded', function () {
       energyElement.closest('.daily-stat-item').classList.add('energy-ok');
     }
 
-    document.getElementById('knowledge-value').textContent = currentKnowledge;
+    // FIX 4: Update knowledge score setelah mini game
+    document.getElementById('knowledge-value').textContent =
+      currentKnowledge + scorePilihMenu + kuisScoreHarian;
   }
 
   function handleFoodSelection() {
@@ -539,7 +567,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const isPositive = card.dataset.type === 'positive';
     const characterSimulasiImg = document.getElementById(
       'main-character-simulasi-img'
-    ); // Ambil karakter
+    );
     let emotion = 'capeOlahraga';
 
     document
@@ -547,7 +575,16 @@ document.addEventListener('DOMContentLoaded', function () {
       .forEach((c) => c.classList.remove('selected-food'));
     card.classList.add('selected-food');
 
-    currentEnergy = Math.min(100, currentEnergy + energyChange);
+    // FIX 5: Pastikan energy tidak diakumulasi lebih dari sekali
+    // Hanya tambahkan energy jika belum pernah dipilih sebelumnya, atau jika kita hanya mengizinkan satu pilihan
+    // Jika hanya satu pilihan yang diizinkan, kita harus menghitung ulang.
+
+    // Asumsi: Hanya 1 pilihan, dan energy dihitung dari 55 (start of day) - penalty (activity) + food.
+    // Karena logic di sini hanya menambahkan, kita biarkan saja, tapi pastikan hanya satu kali klik yang dihitung.
+    if (!card.classList.contains('handled')) {
+      currentEnergy = Math.min(100, currentEnergy + energyChange);
+      card.classList.add('handled');
+    }
 
     const simulasiFeedback = document.getElementById('simulasi-feedback');
 
@@ -555,12 +592,12 @@ document.addEventListener('DOMContentLoaded', function () {
       complianceBonus = 1; // 1 point for good choice
       simulasiFeedback.textContent = activityData[currentDay].rewardMessage;
       simulasiFeedback.style.color = '#4cd964';
-      emotion = 'senangOlahraga'; // FIX 2: Koreksi typo menjadi senangOlahraga
+      emotion = 'senangOlahraga';
     } else {
       complianceBonus = 0; // No compliance bonus
       simulasiFeedback.textContent = `❌ Pilihan kurang optimal. ${card.dataset.name} bukan yang terbaik untuk pulihkan Fe.`;
       simulasiFeedback.style.color = '#ff3b30';
-      emotion = 'capeOlahraga'; // Mengubah dari 'capeOlahraga' menjadi 'murung'
+      emotion = 'murung'; // Mengubah dari 'capeOlahraga' menjadi 'murung'
     }
 
     if (characterSimulasiImg) {
@@ -571,7 +608,7 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('btn-next-step').disabled = false;
   }
 
-  // --- Kuis Harian Logic ---
+  // --- Kuis Harian Logic (5 Soal) ---
   function startKuisHarian() {
     playGameClickSound();
     sceneAktivitas.style.display = 'none';
@@ -581,7 +618,6 @@ document.addEventListener('DOMContentLoaded', function () {
       'main-character-kuis-img'
     );
     if (mainCharacterKuisImg) {
-      // Mengatur src gambar. 'berpikir' adalah pose yang cocok untuk kuis.
       mainCharacterKuisImg.src = getCharacterImage(
         userData.character,
         'berpikir'
@@ -589,12 +625,31 @@ document.addEventListener('DOMContentLoaded', function () {
       mainCharacterKuisImg.alt = `${userData.characterName} Berpikir`;
     }
 
-    const kuis = dailyKuisData[currentDay];
+    // Reset kuis state untuk hari baru
+    currentKuisIndex = 0;
+    kuisScoreHarian = 0;
+
+    // FIX 6: Memanggil fungsi yang benar
+    loadSoalKuisHarian(currentKuisIndex);
+  }
+
+  // Fungsi untuk memuat soal kuis per index (berhasil)
+  function loadSoalKuisHarian(index) {
+    const kuisArray = dailyKuisData[currentDay];
+    const kuis = kuisArray[index];
+    const totalSoal = kuisArray.length;
+
+    const progress = ((index + 1) / totalSoal) * 100;
+
+    // Update progress
+    document.getElementById('kuis-progress-fill').style.width = `${progress}%`;
+    document.getElementById('kuis-progress-text').textContent = `${
+      index + 1
+    }/${totalSoal}`;
+
     const kuisContent = document.getElementById('kuis-harian-content');
 
     // Reset Kuis UI
-    document.getElementById('kuis-progress-fill').style.width = '100%';
-    document.getElementById('kuis-progress-text').textContent = '1/1';
     document.getElementById('btn-check-answer').style.display = 'block';
     document.getElementById('btn-finish-day').style.display = 'none';
 
@@ -619,25 +674,27 @@ document.addEventListener('DOMContentLoaded', function () {
       </div>
     `;
 
-    document.getElementById('btn-check-answer').onclick = checkKuisAnswer;
-    document.getElementById('btn-finish-day').onclick = showHasilAkhir;
+    // FIX 7: Pastikan checkKuisAnswer dipanggil dengan index dan kuis yang benar
+    document.getElementById('btn-check-answer').onclick = () =>
+      checkKuisAnswerLogic(index, kuis);
+
+    document.getElementById('btn-finish-day').onclick = nextKuisOrFinish;
+    document.getElementById('btn-finish-day').textContent =
+      index === totalSoal - 1 ? 'Selesaikan Hari Ini' : 'Soal Berikutnya ➡';
 
     // suara ketika user pilih jawaban
-    const radioButtons = document.querySelectorAll('input[name="jawaban"]');
-    radioButtons.forEach((radio) => {
-      radio.addEventListener('change', function () {
-        window.playClickSound();
-      });
+    document.querySelectorAll('input[name="jawaban"]').forEach((radio) => {
+      radio.addEventListener('change', window.playClickSound);
     });
   }
 
-  function checkKuisAnswer() {
+  // FIX 8: Ganti nama fungsi menjadi checkKuisAnswerLogic
+  function checkKuisAnswerLogic(index, kuis) {
     playGameClickSound();
     const selectedAnswer = document.querySelector(
       'input[name="jawaban"]:checked'
     );
     const kuisFeedback = document.getElementById('kuis-feedback');
-    const kuis = dailyKuisData[currentDay];
 
     if (!selectedAnswer) {
       alert('Pilih jawaban terlebih dahulu!');
@@ -648,8 +705,10 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('btn-finish-day').style.display = 'block';
 
     const isCorrect = parseInt(selectedAnswer.value) === kuis.jawaban;
+    let emotion = 'normal';
+
     if (isCorrect) {
-      currentKnowledge += kuis.score;
+      kuisScoreHarian += kuis.score; // Tambah skor harian
       kuisFeedback.textContent = `✅ Jawaban Benar! +${kuis.score} Poin Pengetahuan.`;
       kuisFeedback.style.color = '#4cd964';
       emotion = 'senang';
@@ -672,7 +731,22 @@ document.addEventListener('DOMContentLoaded', function () {
     document
       .querySelectorAll('input[name="jawaban"]')
       .forEach((input) => (input.disabled = true));
-    updateDailyStats();
+  }
+
+  // Fungsi untuk pindah ke soal berikutnya atau selesai
+  function nextKuisOrFinish() {
+    playGameClickSound();
+    currentKuisIndex++;
+
+    const totalSoal = dailyKuisData[currentDay].length;
+
+    if (currentKuisIndex < totalSoal) {
+      // Lanjut ke soal berikutnya
+      loadSoalKuisHarian(currentKuisIndex);
+    } else {
+      // Kuis selesai, lanjut ke hasil akhir
+      showHasilAkhir();
+    }
   }
 
   // --- Hasil Akhir Logic ---
@@ -682,17 +756,28 @@ document.addEventListener('DOMContentLoaded', function () {
     sceneHasil.style.display = 'block';
 
     // Total Score for the Day
-    const totalDayScore = currentKnowledge + complianceBonus;
+    const totalDayScore = scorePilihMenu + kuisScoreHarian + complianceBonus;
+    // Pengetahuan yang sudah terkumpul sebelum hari ini
+    const knowledgeSebelumHariIni = userData.totalKnowledge || 0;
+
+    // Pengetahuan Harian (Mini Game + Kuis Harian)
+    const knowledgeHarian = scorePilihMenu + kuisScoreHarian;
 
     // Save Progress to localStorage
     userData.progress[`hari${currentDay}`] = {
       completed: true,
       score: totalDayScore,
-      knowledge: currentKnowledge,
+      knowledge: knowledgeHarian, // Hanya skor kuis/mini game HARI INI
       compliance: complianceBonus,
       energy: currentEnergy,
     };
-    userData.totalKnowledge = currentKnowledge;
+
+    // Akumulasi total knowledge
+    userData.totalKnowledge = knowledgeSebelumHariIni + knowledgeHarian;
+    // Akumulasi total compliance (jika complianceBonus adalah tambahan harian)
+    userData.totalCompliance =
+      (userData.totalCompliance || 0) + complianceBonus;
+
     localStorage.setItem('fesmart_user', JSON.stringify(userData));
 
     // Update UI
@@ -700,12 +785,16 @@ document.addEventListener('DOMContentLoaded', function () {
     hasilMessage.innerHTML = `
       <div class="score-detail">
         <div class="score-item-detail">
-          <span class="score-label">Skor Mini Game & Kuis:</span>
-          <span class="score-value">${currentKnowledge}</span>
+          <span class="score-label">Skor Kuis Harian:</span>
+          <span class="score-value">${kuisScoreHarian}/${dailyKuisData[currentDay].length}</span>
+        </div>
+        <div class="score-item-detail">
+          <span class="score-label">Skor Mini Game:</span>
+          <span class="score-value">${scorePilihMenu}/2</span>
         </div>
         <div class="score-item-detail">
           <span class="score-label">Skor Kepatuhan Harian:</span>
-          <span class="score-value">${complianceBonus}</span>
+          <span class="score-value">${complianceBonus}/1</span>
         </div>
         <div class="score-item-detail total-item">
           <span class="score-label">Total Skor Hari ${currentDay}:</span>
@@ -747,13 +836,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Button Next Day Logic
     const btnNextDay = document.getElementById('btn-next-day');
-    if (currentDay < 5) {
-      btnNextDay.textContent = `Lanjut ke Hari 6`;
-      btnNextDay.onclick = () => {
-        playGameClickSound();
-        window.location.href = 'hari6.html';
-      };
-    }
+
+    // FIX 9: Logika untuk Hari 3-5 hanya akan redirect ke hari 6 setelah Hari 3 selesai
+    btnNextDay.textContent = `Lanjut ke Hari 6`;
+    btnNextDay.onclick = () => {
+      playGameClickSound();
+      // Cek apakah ada data Hb level yang perlu dikirim
+      if (userData.progress['hari2'] && userData.progress['hari2'].hbLevel) {
+        userData.initialHb = userData.progress['hari2'].hbLevel;
+        localStorage.setItem('fesmart_user', JSON.stringify(userData));
+      }
+      window.location.href = 'hari6.html';
+    };
   }
 
   // Responsif

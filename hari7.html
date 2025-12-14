@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>FeSmart - Hari 7</title>
-    <link rel="stylesheet" href="css/general.css" />
     <link rel="stylesheet" href="css/hari7.css" />
     <link rel="stylesheet" href="css/hari2.css" />
   </head>
@@ -23,11 +22,10 @@
 
       <div class="container-teks-opening">
         <div class="teks-opening"></div>
-        
-          <button type="button" id="btn-start" class="btn-hidden">
-            Mulai Tes Akhir
-          </button>
 
+        <button type="button" id="btn-start" class="btn-hidden">
+          Mulai Puzzle Iron Match
+        </button>
       </div>
 
       <div class="character" id="character-guru">
@@ -35,31 +33,44 @@
       </div>
     </div>
 
-    <div class="scene-kuis" id="scene-kuis-akhir" style="display: none">
-      <div class="character-kuis" id="character-main-kuis">
-        <img
-          id="main-character-kuis-img"
-          src=""
-          alt="Karakter Utama Berpikir"
-        />
-      </div>
-      <div class="kuis-container">
-        <div class="kuis-header">
-          <h2>🎯 Tes Pengetahuan Akhir (5 Soal)</h2>
-          <div class="progress-container">
-            <div class="progress-bar">
-              <div class="progress-fill" id="progress-fill"></div>
-            </div>
-            <span class="progress-text" id="progress-text">1/5</span>
+    <div class="scene-game" id="scene-puzzle-game" style="display: none">
+      <div class="puzzle-container">
+        <div class="puzzle-header">
+          <h2>🧩 Iron Match: Pulihkan HB!</h2>
+        </div>
+
+        <div class="puzzle-stats-container">
+          <div class="stat-item">
+            <span class="stat-label">HB Level:</span>
+            <span class="stat-value hb-value" id="hb-level-display"
+              >12.0 g/dL</span
+            >
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Gerakan Tersisa:</span>
+            <span class="stat-value" id="moves-left-display">30</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Skor Game:</span>
+            <span class="stat-value" id="score-display">0</span>
           </div>
         </div>
 
-        <div class="kuis-content" id="kuis-content"></div>
+        <div class="game-grid" id="game-grid"></div>
 
-        <div class="navigation-buttons">
-          <button id="btn-prev" class="btn-nav btn-hidden">⬅ Sebelumnya</button>
-          <button id="btn-next" class="btn-nav">Selanjutnya ➡</button>
-        </div>
+        <p id="game-feedback" class="game-feedback"></p>
+
+        <button
+          id="btn-end-game"
+          class="btn-primary btn-large"
+          style="display: none; margin-top: 20px"
+        >
+          Lihat Hasil Akhir
+        </button>
+      </div>
+
+      <div class="character-game-puzzle">
+        <img id="main-character-game-img" src="" alt="Karakter Fokus" />
       </div>
     </div>
 

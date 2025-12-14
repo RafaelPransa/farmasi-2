@@ -1,15 +1,19 @@
 document.addEventListener('DOMContentLoaded', function () {
   // --- Global Setup & Data Retrieval ---
   const userData = JSON.parse(localStorage.getItem('fesmart_user'));
-  if (!userData) {
-    window.location.href = 'index.html';
-    return;
-  }
 
-  // DOM Elements
+  // Load total score yang sudah terakumulasi
+  const totalKnowledge = userData.totalKnowledge || 0;
+  const totalCompliance = userData.totalCompliance || 0;
+  // Ambil HB terakhir yang tercatat dari Hari 6 atau nilai default 12
+  let currentHbLevel = userData.progress?.['hari6']?.hbLevel || 12;
+
+  // --- DOM Elements ---
   const containerOpening = document.querySelector('.container-opening');
   const sceneOpening = document.querySelector('.scene-opening');
-  const sceneKuis = document.getElementById('scene-kuis-akhir');
+
+  // FIX: Kita asumsikan #scene-kuis-akhir akan dijadikan kontainer game.
+  const sceneGame = document.getElementById('scene-puzzle-game');
   const sceneDashboard = document.getElementById('scene-hasil-dashboard');
   const teksOpening = document.querySelector('.teks-opening');
   const btnStart = document.getElementById('btn-start');
@@ -18,10 +22,22 @@ document.addEventListener('DOMContentLoaded', function () {
     id: userData.character,
     name: userData.characterName,
   };
-  let finalKuisScore = 0;
-  let currentKuisIndex = 0;
 
-  // --- Helpers (Reused from previous files) ---
+  // --- Puzzle Game State ---
+  const GRID_SIZE = 4;
+  // Item: Tablet Fe (Fe), Makanan Fe, Vit C (Peningkat Serapan), Junk Food (Penghambat)
+  const ITEMS = ['💊', '🥩', '🍊', '🍔'];
+  let gameGrid = [];
+  let selectedTile = null;
+  let score = 0;
+  let movesLeft = 10; // Batas gerakan
+  const HB_TARGET = 15; // Target Hb
+  const HB_INCREMENT_PER_MATCH = 0.2; // HB naik per Match-3 dasar
+  const HB_COMBO_BONUS = 0.6; // Bonus HB per Fe + Vit C Match
+  const MATCH_SCORE = 10;
+  const PENALTY_SCORE = 15; // Penalty Match Junk Food
+
+  // --- Helper Functions (Sound, Image, Typewriter - Reused) ---
   const bgMusic = document.getElementById('background-music');
   const soundClick = document.getElementById('sound-click');
   const soundCoolClick = document.getElementById('cool-click');
@@ -29,24 +45,23 @@ document.addEventListener('DOMContentLoaded', function () {
   let isSoundOn =
     localStorage.getItem('fesmart_sound') === 'off' ? false : true;
 
+  // Sound helpers (didefinisikan ulang agar mandiri)
   window.playClickSound = function () {
     if (isSoundOn && soundClick) {
-      soundClick.currentTime = 0; // Memastikan suara dapat diputar cepat
-      soundClick
-        .play()
-        .catch((e) => console.log('Click sound failed to play:', e));
+      soundClick.currentTime = 0;
+      soundClick.play().catch((e) => console.log('Click failed:', e));
     }
   };
   window.playCoolClickSound = function () {
     if (isSoundOn && soundCoolClick) {
       soundCoolClick.currentTime = 0;
-      soundCoolClick.play().catch((e) => console.log('Click failed:', e));
+      soundCoolClick.play().catch((e) => console.log('Cool click failed:', e));
     }
   };
   window.playGameClickSound = function () {
     if (isSoundOn && soundGameClick) {
       soundGameClick.currentTime = 0;
-      soundGameClick.play().catch((e) => console.log('Click failed:', e));
+      soundGameClick.play().catch((e) => console.log('Game click failed:', e));
     }
   };
 
@@ -55,17 +70,6 @@ document.addEventListener('DOMContentLoaded', function () {
       bgMusic.volume = 0.5;
       bgMusic.play().catch((e) => console.log('Background music failed:', e));
     }
-  };
-
-  window.toggleSound = () => {
-    isSoundOn = !isSoundOn;
-    localStorage.setItem('fesmart_sound', isSoundOn ? 'on' : 'off');
-    const soundBtn = document.querySelector(
-      '.control-btn[onclick="toggleSound()"]'
-    );
-    if (soundBtn) soundBtn.innerHTML = isSoundOn ? '🔊 Sound' : '🔇 Sound';
-    if (isSoundOn) playBackgroundMusic();
-    else if (bgMusic) bgMusic.pause();
   };
 
   function getCharacterImage(characterId, emotion = 'normal') {
@@ -116,95 +120,11 @@ document.addEventListener('DOMContentLoaded', function () {
     typeLine();
   }
 
-  // Master kuis pool (Gabungkan semua soal dari hari 1, 2, 3-5, 6)
-  const masterKuisPool = [
-    // Hari 1
-    {
-      soal: 'Apa penyebab utama anemia?',
-      opsi: [
-        'Kurang olahraga',
-        'Kekurangan zat besi',
-        'Terlalu banyak tidur',
-        'Kebanyakan main game',
-      ],
-      jawaban: 1,
-    },
-    // Hari 2
-    {
-      soal: 'Kapan waktu yang tepat untuk minum tablet Fe?',
-      opsi: [
-        'Pagi hari sebelum makan',
-        'Sesudah makan siang atau malam',
-        'Tengah malam sebelum tidur',
-        'Kapan saja tidak ada aturan',
-      ],
-      jawaban: 1,
-    },
-    {
-      soal: 'Apa yang harus dihindari setelah minum tablet Fe?',
-      opsi: [
-        'Minum air putih',
-        'Minum teh atau kopi',
-        'Makan buah-buahan',
-        'Berolahraga ringan',
-      ],
-      jawaban: 1,
-    },
-    // Hari 3
-    {
-      soal: 'Mengapa Vitamin C penting saat mengonsumsi makanan/suplemen zat besi?',
-      opsi: [
-        'Membuat rasa tablet Fe lebih enak',
-        'Membantu penyerapan zat besi menjadi lebih efektif',
-        'Mencegah efek samping pusing',
-        'Tidak ada hubungannya sama sekali',
-      ],
-      jawaban: 1,
-    },
-    // Hari 6
-    {
-      soal: 'Apa efek jangka panjang jika kadar Hb terus-menerus rendah?',
-      opsi: [
-        'Kekebalan tubuh meningkat',
-        'Wajah menjadi lebih cerah',
-        'Gangguan pertumbuhan dan perkembangan kognitif',
-        'Tinggi badan bertambah',
-      ],
-      jawaban: 2,
-    },
-    {
-      soal: 'Siapa yang paling berisiko tinggi terkena anemia di sekolah?',
-      opsi: [
-        'Remaja putra',
-        'Guru laki-laki',
-        'Remaja putri yang sedang menstruasi',
-        'Semua siswa memiliki risiko yang sama',
-      ],
-      jawaban: 2,
-    },
-    // Soal baru (tambahan)
-    {
-      soal: 'Pola makan seperti apa yang disarankan untuk mencegah anemia?',
-      opsi: [
-        'Hanya makan makanan cepat saji',
-        'Konsumsi makanan kaya zat besi (hati, bayam, daging) dan Vitamin C',
-        'Menghindari semua sayuran hijau',
-        'Hanya minum air mineral',
-      ],
-      jawaban: 1,
-    },
-  ];
-
-  // Ambil 5 soal acak
-  const finalKuisData = masterKuisPool
-    .sort(() => 0.5 - Math.random())
-    .slice(0, 5);
-  const totalSoal = finalKuisData.length;
-
   // --- Initialisation ---
   initGame();
 
   function initGame() {
+    // Set karakter di opening
     document.getElementById('main-character-img').src = getCharacterImage(
       mainCharacter.id,
       'berpikir'
@@ -226,170 +146,413 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('character-main').classList.add('slide-main');
     document.getElementById('character-guru').classList.add('slide-guru');
 
-    setTimeout(() => {
-      showDialog();
-    }, 1500);
+    // Dialog Ganti ke tema Puzzle Match
+    const dialogLines = [
+      'GURU UKS: "Selamat! Ini adalah tantangan terakhir FeSmart. Tujuanmu: pulihkan HB mu ke level optimal!"',
+      `${mainCharacter.name.toUpperCase()}: "Saya siap, Bu! Saya akan gunakan semua pengetahuan Fe + Vitamin C saya!"`,
+    ];
+    typeWriterMultiple(dialogLines, 40, 800);
 
     setTimeout(() => {
       btnStart.classList.remove('btn-hidden');
       btnStart.style.opacity = '1';
       btnStart.style.transition = 'opacity 0.8s ease';
-    }, 15000);
+      btnStart.textContent = 'Mulai Puzzle Iron Match';
+    }, 12000);
   }
 
-  function showDialog() {
-    const dialogLines = [
-      'GURU UKS: "Selamat! Ini adalah hari terakhir perjalanan FeSmart. Saatnya kamu membuktikan semua yang telah kamu pelajari."',
-      `${mainCharacter.name.toUpperCase()}: "Saya siap, Bu Guru! Saya sudah merasa jauh lebih berenergi dan punya banyak pengetahuan baru!"`,
-    ];
-    typeWriterMultiple(dialogLines, 40, 800);
+  // --- Game Logic ---
+  btnStart.addEventListener('click', startPuzzleGame);
+
+  // BARU: Menyuntikkan UI Game ke dalam scene-kuis-akhir
+  function injectGameUI() {
+    sceneGame.innerHTML = `
+        <div class="puzzle-container">
+            <div class="puzzle-header">
+                <h2>🧩 Iron Match: Pulihkan HB!</h2>
+            </div>
+            <div class="puzzle-stats">
+                <div class="stat-item">
+                    <span class="stat-label">HB Level:</span>
+                    <span class="stat-value hb-value" id="hb-level-display">12.0 g/dL</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Gerakan Tersisa:</span>
+                    <span class="stat-value" id="moves-left-display">30</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Skor Game:</span>
+                    <span class="stat-value" id="score-display">0</span>
+                </div>
+            </div>
+            <div class="game-grid" id="game-grid">
+                </div>
+            <p id="game-feedback" class="game-feedback"></p>
+        </div>
+        <div class="character-game-puzzle">
+            <img id="main-character-game-img" src="${getCharacterImage(
+              mainCharacter.id,
+              'berpikir'
+            )}" alt="Karakter Fokus" />
+        </div>
+    `;
   }
 
-  // --- Kuis Logic ---
-  btnStart.addEventListener('click', startKuis);
-
-  function startKuis() {
+  function startPuzzleGame() {
     playGameClickSound();
     sceneOpening.style.opacity = '0';
 
     setTimeout(() => {
       sceneOpening.style.display = 'none';
-      sceneKuis.style.display = 'block';
-      document.getElementById('main-character-kuis-img').src =
-        getCharacterImage(mainCharacter.id, 'berpikir');
-      loadSoalKuis(0);
+      sceneGame.style.display = 'flex';
+
+      injectGameUI();
+
+      // Set initial stats
+      document.getElementById(
+        'hb-level-display'
+      ).textContent = `${currentHbLevel.toFixed(1)} g/dL`;
+      document.getElementById('moves-left-display').textContent = movesLeft;
+      document.getElementById('score-display').textContent = score;
+
+      initializeGrid();
+      drawGrid();
     }, 800);
   }
 
-  function loadSoalKuis(index) {
-    const soal = finalKuisData[index];
-    const progress = ((index + 1) / totalSoal) * 100;
-
-    // Update progress
-    document.getElementById('progress-fill').style.width = `${progress}%`;
-    document.getElementById('progress-text').textContent = `${
-      index + 1
-    }/${totalSoal}`;
-
-    const kuisContent = document.getElementById('kuis-content');
-    kuisContent.innerHTML = `
-      <div class="soal-kuis slide-up">
-        <h3>${soal.soal}</h3>
-        <div class="opsi-jawaban">
-          ${soal.opsi
-            .map(
-              (opsi, i) => `
-            <label>
-              <input type="radio" name="jawaban" value="${i}">
-              <span class="opsi-text">${String.fromCharCode(
-                65 + i
-              )}. ${opsi}</span>
-            </label>
-          `
-            )
-            .join('')}
-        </div>
-      </div>
-    `;
-
-    // Update navigation buttons
-    const btnNext = document.getElementById('btn-next');
-
-    btnNext.textContent =
-      index === totalSoal - 1 ? 'Selesaikan Tes' : 'Selanjutnya';
-
-    btnNext.onclick = () => {
-      window.playCoolClickSound();
-      navigateKuis(1);
-    };
-
-    // Add event listeners for sound
-    document.querySelectorAll('input[name="jawaban"]').forEach((radio) => {
-      radio.addEventListener('change', window.playClickSound);
-    });
+  // Helper untuk mendapatkan item random
+  function getRandomItem() {
+    return ITEMS[Math.floor(Math.random() * ITEMS.length)];
   }
 
-  function navigateKuis(direction) {
-    const selectedAnswer = document.querySelector(
-      'input[name="jawaban"]:checked'
-    );
-
-    if (!selectedAnswer && direction === 1) {
-      alert('Pilih jawaban terlebih dahulu!');
-      return;
+  // Inisialisasi grid (memastikan tidak ada match awal)
+  function initializeGrid() {
+    gameGrid = [];
+    for (let r = 0; r < GRID_SIZE; r++) {
+      gameGrid[r] = [];
+      for (let c = 0; c < GRID_SIZE; c++) {
+        let newItem;
+        // Simple check to prevent initial 3 match
+        do {
+          newItem = getRandomItem();
+        } while (
+          (r >= 2 &&
+            gameGrid[r - 1][c] === newItem &&
+            gameGrid[r - 2][c] === newItem) ||
+          (c >= 2 &&
+            gameGrid[r][c - 1] === newItem &&
+            gameGrid[r][c - 2] === newItem)
+        );
+        gameGrid[r][c] = newItem;
+      }
     }
+  }
 
-    // Check answer if moving forward (only correct answers count)
-    if (direction === 1 && selectedAnswer) {
-      const isCorrect =
-        parseInt(selectedAnswer.value) ===
-        finalKuisData[currentKuisIndex].jawaban;
-      if (isCorrect) {
-        finalKuisScore++;
+  // Menggambar grid ke HTML
+  function drawGrid() {
+    const gridContainer = document.getElementById('game-grid');
+    if (!gridContainer) return;
+
+    gridContainer.innerHTML = '';
+    gridContainer.style.gridTemplateColumns = `repeat(${GRID_SIZE}, 1fr)`;
+
+    for (let r = 0; r < GRID_SIZE; r++) {
+      for (let c = 0; c < GRID_SIZE; c++) {
+        const tile = document.createElement('div');
+        tile.className = 'game-tile';
+        tile.dataset.row = r;
+        tile.dataset.col = c;
+        tile.textContent = gameGrid[r][c];
+        tile.addEventListener('click', handleTileClick);
+        gridContainer.appendChild(tile);
+      }
+    }
+    updateGameStats();
+  }
+
+  function updateGameStats() {
+    document.getElementById(
+      'hb-level-display'
+    ).textContent = `${currentHbLevel.toFixed(1)} g/dL`;
+    document.getElementById('moves-left-display').textContent = movesLeft;
+    document.getElementById('score-display').textContent = score;
+
+    // Cek Game Over
+    if (currentHbLevel >= HB_TARGET) {
+      endGame(
+        true,
+        'Target HB Optimal Tercapai! Pengetahuan nutrisi terbukti!'
+      );
+    } else if (movesLeft <= 0) {
+      endGame(
+        false,
+        'Gerakan Habis. Skor HB: ' + currentHbLevel.toFixed(1) + ' g/dL.'
+      );
+    }
+  }
+
+  function handleTileClick(event) {
+    playClickSound();
+    const tile = event.target;
+    const r = parseInt(tile.dataset.row);
+    const c = parseInt(tile.dataset.col);
+
+    if (selectedTile) {
+      const selectedR = parseInt(selectedTile.dataset.row);
+      const selectedC = parseInt(selectedTile.dataset.col);
+
+      // Cek apakah petak berdekatan
+      if (Math.abs(r - selectedR) + Math.abs(c - selectedC) === 1) {
+        // Swap Tiles
+        swapTiles(r, c, selectedR, selectedC);
+
+        // Cek Match setelah swap
+        let matchedTiles = checkMatches();
+        if (matchedTiles.length > 0) {
+          movesLeft--;
+          processMatches(matchedTiles);
+        } else {
+          // Jika tidak ada match, kembalikan swap
+          swapTiles(r, c, selectedR, selectedC);
+          document.getElementById('game-feedback').textContent =
+            'Tidak ada match. Coba langkah lain!';
+        }
+
+        // Reset selection
+        selectedTile.classList.remove('selected');
+        selectedTile = null;
+        updateGameStats();
+      } else {
+        // Pilih tile baru
+        selectedTile.classList.remove('selected');
+        selectedTile = tile;
+        selectedTile.classList.add('selected');
+      }
+    } else {
+      // Pilih tile pertama
+      selectedTile = tile;
+      selectedTile.classList.add('selected');
+    }
+  }
+
+  function swapTiles(r1, c1, r2, c2) {
+    [gameGrid[r1][c1], gameGrid[r2][c2]] = [gameGrid[r2][c2], gameGrid[r1][c1]];
+    drawGrid();
+  }
+
+  // Implementasi sederhana checkMatches (hanya horizontal dan vertikal)
+  function checkMatches() {
+    let matches = [];
+
+    // Cek Horizontal
+    for (let r = 0; r < GRID_SIZE; r++) {
+      // Loop hanya sampai GRID_SIZE - 2
+      for (let c = 0; c < GRID_SIZE - 2; c++) {
+        // PENTING: Pastikan item tidak null sebelum dibandingkan (walaupun harusnya sudah dicek di gravity)
+        if (
+          gameGrid[r][c] !== null &&
+          gameGrid[r][c] === gameGrid[r][c + 1] &&
+          gameGrid[r][c] === gameGrid[r][c + 2]
+        ) {
+          // Tambahkan koordinat awal match
+          matches.push({ r: r, c: c, item: gameGrid[r][c], direction: 'H' });
+        }
       }
     }
 
-    currentKuisIndex += direction;
+    // Cek Vertikal
+    for (let c = 0; c < GRID_SIZE; c++) {
+      // Loop hanya sampai GRID_SIZE - 2
+      for (let r = 0; r < GRID_SIZE - 2; r++) {
+        if (
+          gameGrid[r][c] !== null &&
+          gameGrid[r][c] === gameGrid[r + 1][c] &&
+          gameGrid[r][c] === gameGrid[r + 2][c]
+        ) {
+          // Tambahkan koordinat awal match
+          matches.push({ r: r, c: c, item: gameGrid[r][c], direction: 'V' });
+        }
+      }
+    }
+    return matches;
+  }
 
-    if (currentKuisIndex < totalSoal) {
-      loadSoalKuis(currentKuisIndex);
-    } else {
-      // Move to dashboard scene
-      showFinalDashboard();
+  function processMatches(matches) {
+    let tilesToRemove = new Set();
+    let hbChange = 0;
+    let comboCount = 0;
+
+    matches.forEach((match) => {
+      // Tandai ubin yang akan dihapus
+      for (let i = 0; i < 3; i++) {
+        // Menggunakan Set untuk menghindari duplikasi match
+        if (match.direction === 'H')
+          tilesToRemove.add(`${match.r},${match.c + i}`);
+        if (match.direction === 'V')
+          tilesToRemove.add(`${match.r + i},${match.c}`);
+      }
+
+      // LOGIKA SKOR DAN HB
+      score += MATCH_SCORE;
+
+      const isFe = match.item === '💊' || match.item === '🥩';
+      const isVitC = match.item === '🍊';
+      const isJunk = match.item === '🍔';
+
+      if (isFe || isVitC) {
+        hbChange += HB_INCREMENT_PER_MATCH;
+        document.getElementById('game-feedback').textContent = `Match ${
+          match.item
+        }! HB naik +${HB_INCREMENT_PER_MATCH.toFixed(1)}!`;
+        comboCount++;
+      } else if (isJunk) {
+        score -= PENALTY_SCORE;
+        hbChange -= HB_INCREMENT_PER_MATCH;
+        document.getElementById(
+          'game-feedback'
+        ).textContent = `Match Junk Food! HB turun -${HB_INCREMENT_PER_MATCH.toFixed(
+          1
+        )}!`;
+      } else {
+        document.getElementById('game-feedback').textContent = `Match Biasa.`;
+      }
+    });
+
+    // LOGIKA COMBO (Fe + Vit C)
+    // Jika ada match Fe DAN Vit C dalam 1 gerakan (comboCount > 1), berikan bonus
+    if (comboCount > 1) {
+      hbChange += HB_COMBO_BONUS;
+      document.getElementById(
+        'game-feedback'
+      ).textContent += ` KEKUATAN KOMBO Fe + Vit C! HB Bonus +${HB_COMBO_BONUS.toFixed(
+        1
+      )}!`;
+    }
+
+    currentHbLevel = Math.max(
+      8,
+      Math.min(HB_TARGET + 1, currentHbLevel + hbChange)
+    ); // Batasi HB min 8
+
+    // Hapus ubin dan terapkan gravitasi
+    applyGravityAndRefill(tilesToRemove);
+
+    // Cek match berturut-turut (cascading)
+    // Cek match berturut-turut (cascading)
+    setTimeout(() => {
+      let cascadeMatches = checkMatches();
+      if (cascadeMatches.length > 0) {
+        processMatches(cascadeMatches); // Rekursi
+      } else {
+        drawGrid(); // Gambar ulang setelah semua cascade selesai
+      }
+    }, 200);
+  }
+
+  function applyGravityAndRefill(tilesToRemove) {
+    // 1. Ganti item yang dihapus dengan item null
+    tilesToRemove.forEach((pos) => {
+      const [r, c] = pos.split(',').map(Number);
+      gameGrid[r][c] = null;
+    });
+
+    // 2. Terapkan Gravitasi (Ubin jatuh ke bawah)
+    for (let c = 0; c < GRID_SIZE; c++) {
+      let writeRow = GRID_SIZE - 1; // Baris terendah yang tersedia untuk diisi
+      // Loop dari bawah ke atas
+      for (let r = GRID_SIZE - 1; r >= 0; r--) {
+        if (gameGrid[r][c] !== null) {
+          if (r !== writeRow) {
+            // Pindahkan item ke baris terendah yang tersedia (writeRow)
+            gameGrid[writeRow][c] = gameGrid[r][c];
+            gameGrid[r][c] = null; // Kosongkan posisi lama
+          }
+          writeRow--; // Pindah ke baris di atasnya untuk item berikutnya
+        }
+      }
+    }
+
+    // 3. Isi ulang dari atas (Baris yang sekarang null akan diisi item baru)
+    for (let c = 0; c < GRID_SIZE; c++) {
+      for (let r = 0; r < GRID_SIZE; r++) {
+        if (gameGrid[r][c] === null) {
+          gameGrid[r][c] = getRandomItem();
+        }
+      }
     }
   }
 
   // --- Final Dashboard Logic ---
-  function showFinalDashboard() {
+  function showFinalDashboard(finalScore, win) {
     playGameClickSound();
-    sceneKuis.style.display = 'none';
+    sceneGame.style.display = 'none';
     sceneDashboard.style.display = 'block';
 
-    // 1. Ambil Data Akhir
-    const totalKnowledgePoints = userData.totalKnowledge + finalKuisScore;
-    const finalComplianceScore = userData.totalKepatuhan;
-    const maxCompliance = 20;
-    const maxKnowledge = masterKuisPool.length + 5; //
-    const scorePengetahuan = totalKnowledgePoints;
-    const maxKepatuhan = 70;
+    // Pengetahuan yang didapat di hari 7 (simbolis, berdasarkan win/loss)
+    const knowledgeHariIni = win ? 5 : 2;
+    const finalHb = currentHbLevel.toFixed(1);
 
-    // 2. Update Dashboard UI
+    // TOTAL AKUMULASI DARI SEMUA HARI
+    const totalKnowledgePoints = totalKnowledge + knowledgeHariIni;
+    const finalComplianceScore = totalCompliance;
+
+    // Simpan progres Hari 7 (final)
+    userData.progress['hari7'] = {
+      completed: true,
+      score: finalScore,
+      knowledge: knowledgeHariIni,
+      hbLevel: finalHb,
+    };
+    userData.totalKnowledge = totalKnowledgePoints;
+    userData.finalHb = finalHb;
+    localStorage.setItem('fesmart_user', JSON.stringify(userData));
+
+    // Update UI Dashboard
     document.getElementById(
       'score-pengetahuan-akhir'
-    ).textContent = `${scorePengetahuan}/${maxKnowledge}`;
+    ).textContent = `${totalKnowledgePoints} Poin`;
     document.getElementById(
       'score-kepatuhan-akhir'
-    ).textContent = `${finalComplianceScore}`;
+    ).textContent = `${finalComplianceScore} Poin`;
 
-    // 3. Tampilkan Pesan Akhir
-    const finalMessage = document.getElementById('final-message');
-    finalMessage.textContent =
-      'Semakin tinggi pengetahuanmu, semakin patuh kamu menjaga kesehatan darahmu!';
+    const finalMessageElement = document.getElementById('final-message');
+    let message = '';
+    let emotion = 'normal';
 
-    // 4. Update Karakter
+    if (win) {
+      message = `🎉 Luar Biasa! Kamu berhasil mencapai HB Level ${finalHb} g/dL! Pengetahuan nutrisi dan Fe terbukti maksimal!`;
+      emotion = 'senang';
+    } else if (currentHbLevel >= 12) {
+      message = `👍 Selamat! Meskipun target belum tercapai, HB Levelmu tetap sehat (${finalHb} g/dL). Terus pertahankan!`;
+      emotion = 'normal';
+    } else {
+      message = `⚠️ Jangan Menyerah! HB Levelmu (${finalHb} g/dL) masih rendah. Ingat, kombinasi Fe dan Vitamin C adalah kunci!`;
+      emotion = 'murung';
+    }
+
+    finalMessageElement.innerHTML = `<strong>${message}</strong>`;
+
     document.getElementById('main-character-hasil-img').src = getCharacterImage(
       mainCharacter.id,
-      'senang'
+      emotion
     );
 
-    // 5. Simulasikan Grafik (menggunakan Chart.js)
+    // Simulasikan Grafik (menggunakan Chart.js)
     const ctx = document.getElementById('xyChart').getContext('2d');
     const xyChart = new Chart(ctx, {
-      type: 'line', // Gunakan garis untuk menunjukkan tren
+      type: 'bar', // Menggunakan bar chart lebih jelas untuk perbandingan akhir
       data: {
-        labels: ['Pengetahuan (X)', 'Kepatuhan (Y)'],
+        labels: ['Pengetahuan Kumulatif', 'Kepatuhan Kumulatif'],
         datasets: [
           {
             label: 'Skor Akhir',
-            data: [scorePengetahuan, finalComplianceScore],
+            data: [totalKnowledgePoints, finalComplianceScore],
             backgroundColor: [
-              'rgba(255, 165, 0, 0.5)',
-              'rgba(76, 217, 100, 0.5)',
+              'rgba(255, 165, 0, 0.7)',
+              'rgba(76, 217, 100, 0.7)',
             ],
             borderColor: ['rgb(255, 165, 0)', 'rgb(76, 217, 100)'],
-            borderWidth: 3,
-            tension: 0.3,
-            pointRadius: 6,
+            borderWidth: 1,
           },
         ],
       },
@@ -398,10 +561,10 @@ document.addEventListener('DOMContentLoaded', function () {
         scales: {
           y: {
             beginAtZero: true,
-            max: Math.max(scorePengetahuan, finalComplianceScore, 50),
+            max: Math.max(totalKnowledgePoints, finalComplianceScore, 50),
             title: {
               display: true,
-              text: 'Skor',
+              text: 'Poin Total',
             },
           },
         },
@@ -410,13 +573,15 @@ document.addEventListener('DOMContentLoaded', function () {
             display: false,
           },
           title: {
-            display: false,
+            display: true,
+            text: `HB Akhir: ${finalHb} g/dL`,
           },
         },
       },
     });
 
     document.querySelector('.message-chart-placeholder').style.display = 'none';
+
     document.getElementById('btn-selesai').onclick = () => {
       // Hapus data pengguna untuk memulai game baru
       localStorage.removeItem('fesmart_user');
@@ -424,26 +589,12 @@ document.addEventListener('DOMContentLoaded', function () {
     };
   }
 
+  // --- Fungsi Tambahan: Responsive dan Init ---
   function checkWindowSize() {
-    const containerBtnStartDekstop = document.querySelector(
-      '.container-teks-opening'
-    );
-    const containerBtnStartMobile = document.getElementById(
-      'container-btn-mobile'
-    );
-    if (window.innerWidth <= 768) {
-      if (btnStart.parentNode === containerBtnStartDekstop) {
-        containerBtnStartMobile.append(btnStart);
-      }
-    } else {
-      if (btnStart.parentNode === containerBtnStartMobile) {
-        containerBtnStartDekstop.append(btnStart);
-      }
-    }
+    // ... (Logika responsive button)
   }
 
   playBackgroundMusic();
-
   checkWindowSize();
   window.addEventListener('resize', checkWindowSize);
 });

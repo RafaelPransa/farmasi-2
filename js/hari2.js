@@ -185,6 +185,10 @@ document.addEventListener('DOMContentLoaded', function () {
   let gameCompleted = false;
   let continueButtonCreated = false; // ⚠️ BARU: Flag untuk cek tombol sudah dibuat
 
+  // --- BARU: Ambil nilai awal dari localStorage ---
+  let totalKnowledge = userData.totalKnowledge || 0;
+  let totalKepatuhan = userData.totalCompliance || 0; // Menggunakan compliance/kepatuhan global
+
   // Initialize the game
   initGame();
 
@@ -230,7 +234,7 @@ document.addEventListener('DOMContentLoaded', function () {
         mainCharacter.name
       }, aku lihat kamu masih sering lesu. Aku dulu juga gitu lho!"`,
       `${mainCharacter.name.toUpperCase()}: "Iya nih, gimana caranya kamu bisa lebih berenergi sekarang?"`,
-      `TEMAN ${mainCharacter.name.toUpperCase()}: "Coba kamu minum tablet Feikutan. Tapi harus tahu aturan minumnya ya, biar efektif!"`,
+      `TEMAN ${mainCharacter.name.toUpperCase()}: "Coba kamu minum tablet Fe. Tapi harus tahu aturan minumnya ya, biar efektif!"`,
     ];
 
     typeWriterMultiple(dialogLines, 40, 800);
@@ -388,6 +392,9 @@ document.addEventListener('DOMContentLoaded', function () {
     timeLeft = 60;
     gameCompleted = false;
     continueButtonCreated = false; // ⚠️ BARU: Reset flag
+
+    // --- BARU: Set Hb Level awal dari userData jika ada ---
+    hbLevel = userData.progress['hari2']?.hbLevel || userData.initialHb || 12;
 
     // Update stats display
     updateStatsDisplay();
@@ -599,6 +606,25 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Calculate total score
     const totalScore = score + kepatuhan;
+
+    // --- BARU: Akumulasi pengetahuan & kepatuhan ---
+    totalKnowledge += score; // Tambah skor kuis hari ini ke total
+    totalKepatuhan += kepatuhan; // Tambah skor kepatuhan hari ini ke total
+
+    // Simpan progres Hari 2
+    userData.progress['hari2'] = {
+      completed: true,
+      score: totalScore,
+      knowledge: score,
+      compliance: kepatuhan,
+      hbLevel: hbLevel,
+    };
+
+    // Update total global
+    userData.totalKnowledge = totalKnowledge;
+    userData.totalCompliance = totalKepatuhan;
+    userData.initialHb = hbLevel; // Simpan Hb level akhir hari 2 untuk hari berikutnya
+    localStorage.setItem('fesmart_user', JSON.stringify(userData));
 
     // Tampilkan detail scoring
     const hasilMessage = document.getElementById('hasil-message');

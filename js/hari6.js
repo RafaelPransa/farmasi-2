@@ -1,10 +1,7 @@
 document.addEventListener('DOMContentLoaded', function () {
   // --- Global Setup & Helpers (Similar to hari1.js/hari2.js) ---
   const userData = JSON.parse(localStorage.getItem('fesmart_user'));
-  if (!userData) {
-    window.location.href = 'index.html';
-    return;
-  }
+
 
   // DOM Elements
   const containerOpening = document.querySelector('.container-opening');
@@ -19,8 +16,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Load initial scores and stats (from previous days, if available)
   const initialHb = userData.initialHb || 12; // Default to 12 if not set
-  let totalKepatuhan = userData.totalKepatuhan || 0;
-  let totalKnowledge = userData.totalKnowledge || 0;
+  let totalKepatuhan = userData.totalCompliance || 0; // Menggunakan nama variabel yang konsisten
+  let totalKnowledge = userData.totalKnowledge || 0; // Menggunakan nama variabel yang konsisten
   let currentHbLevel = initialHb;
   let kuisScore = 0;
 
@@ -384,22 +381,24 @@ document.addEventListener('DOMContentLoaded', function () {
     sceneHasil.style.display = 'block';
 
     // Update total knowledge with score from this day
-    totalKnowledge += kuisScore;
+    const knowledgeHarian = kuisScore; // Pengetahuan HARI INI
+    totalKnowledge += knowledgeHarian; // Akumulasi total pengetahuan
 
     // Calculate final score for the day
-    const dayScore =
-      kuisScore + (totalKepatuhan - (userData.totalKepatuhan || 0)); // Score kuis + perubahan kepatuhan
+    const dayComplianceBonus = totalKepatuhan - (userData.totalCompliance || 0); // Kepatuhan HARI INI
+    const dayScore = kuisScore + dayComplianceBonus;
 
     // Save progress
     userData.progress['hari6'] = {
       completed: true,
       score: dayScore,
-      knowledge: kuisScore,
-      compliance: totalKepatuhan,
+      knowledge: knowledgeHarian,
+      compliance: dayComplianceBonus,
       hbLevel: currentHbLevel,
     };
-    userData.totalKepatuhan = totalKepatuhan;
-    userData.totalKnowledge = totalKnowledge;
+
+    userData.totalCompliance = totalKepatuhan; // Simpan total yang sudah terakumulasi
+    userData.totalKnowledge = totalKnowledge; // Simpan total yang sudah terakumulasi
     localStorage.setItem('fesmart_user', JSON.stringify(userData));
 
     // Update UI
