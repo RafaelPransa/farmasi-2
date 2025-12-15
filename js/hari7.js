@@ -30,8 +30,8 @@ document.addEventListener('DOMContentLoaded', function () {
   let gameGrid = [];
   let selectedTile = null;
   let score = 0;
-  let movesLeft = 10; // Batas gerakan
-  const HB_TARGET = 15; // Target Hb
+  let movesLeft = 5; // Batas gerakan
+  const HB_TARGET = 15.5; // Target Hb
   const HB_INCREMENT_PER_MATCH = 0.2; // HB naik per Match-3 dasar
   const HB_COMBO_BONUS = 0.6; // Bonus HB per Fe + Vit C Match
   const MATCH_SCORE = 10;
@@ -42,6 +42,10 @@ document.addEventListener('DOMContentLoaded', function () {
   const soundClick = document.getElementById('sound-click');
   const soundCoolClick = document.getElementById('cool-click');
   const soundGameClick = document.getElementById('game-click');
+  const soundMatchesPuzzle = document.getElementById('matches-puzzle');
+  const soundNotMatchesPuzzle = document.getElementById('not-matches-puzzle');
+  const soundGameFinish = document.getElementById('game-finish');
+
   let isSoundOn =
     localStorage.getItem('fesmart_sound') === 'off' ? false : true;
 
@@ -58,10 +62,36 @@ document.addEventListener('DOMContentLoaded', function () {
       soundCoolClick.play().catch((e) => console.log('Cool click failed:', e));
     }
   };
+
   window.playGameClickSound = function () {
     if (isSoundOn && soundGameClick) {
       soundGameClick.currentTime = 0;
       soundGameClick.play().catch((e) => console.log('Game click failed:', e));
+    }
+  };
+
+  window.playSoundMathcesPuzzle = function () {
+    if (isSoundOn && soundMatchesPuzzle) {
+      soundMatchesPuzzle.currentTime = 0;
+      soundMatchesPuzzle
+        .play()
+        .catch((e) => console.log('Game click failed:', e));
+    }
+  };
+
+  window.playSoundNotMathcesPuzzle = function () {
+    if (isSoundOn && soundNotMatchesPuzzle) {
+      soundNotMatchesPuzzle.currentTime = 0;
+      soundNotMatchesPuzzle
+        .play()
+        .catch((e) => console.log('Game click failed:', e));
+    }
+  };
+
+  window.playSoundFinish = function () {
+    if (isSoundOn && soundGameFinish) {
+      soundGameFinish.currentTime = 0;
+      soundGameFinish.play().catch((e) => console.log('Game click failed:', e));
     }
   };
 
@@ -70,6 +100,17 @@ document.addEventListener('DOMContentLoaded', function () {
       bgMusic.volume = 0.5;
       bgMusic.play().catch((e) => console.log('Background music failed:', e));
     }
+  };
+
+  window.toggleSound = () => {
+    isSoundOn = !isSoundOn;
+    localStorage.setItem('fesmart_sound', isSoundOn ? 'on' : 'off');
+    const soundBtn = document.querySelector(
+      '.control-btn[onclick="toggleSound()"]'
+    );
+    if (soundBtn) soundBtn.innerHTML = isSoundOn ? '🔊 Sound' : '🔇 Sound';
+    if (isSoundOn) playBackgroundMusic();
+    else if (bgMusic) bgMusic.pause();
   };
 
   function getCharacterImage(characterId, emotion = 'normal') {
@@ -170,6 +211,7 @@ document.addEventListener('DOMContentLoaded', function () {
         <div class="puzzle-container">
             <div class="puzzle-header">
                 <h2>🧩 Iron Match: Pulihkan HB!</h2>
+                <h3>kadar Hb normal berkisar antara 12.0 g/dL hingga 15,0 g/dL</h3>
             </div>
             <div class="puzzle-stats">
                 <div class="stat-item">
@@ -227,25 +269,93 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Inisialisasi grid (memastikan tidak ada match awal)
   function initializeGrid() {
-    gameGrid = [];
-    for (let r = 0; r < GRID_SIZE; r++) {
-      gameGrid[r] = [];
-      for (let c = 0; c < GRID_SIZE; c++) {
-        let newItem;
-        // Simple check to prevent initial 3 match
-        do {
-          newItem = getRandomItem();
-        } while (
-          (r >= 2 &&
-            gameGrid[r - 1][c] === newItem &&
-            gameGrid[r - 2][c] === newItem) ||
-          (c >= 2 &&
-            gameGrid[r][c - 1] === newItem &&
-            gameGrid[r][c - 2] === newItem)
+    let attempts = 0;
+    do {
+      gameGrid = [];
+      // Isi grid acak, mencegah match awal
+      for (let r = 0; r < GRID_SIZE; r++) {
+        gameGrid[r] = [];
+        for (let c = 0; c < GRID_SIZE; c++) {
+          let newItem;
+          do {
+            newItem = getRandomItem();
+          } while (
+            (r >= 2 &&
+              gameGrid[r - 1][c] === newItem &&
+              gameGrid[r - 2][c] === newItem) ||
+            (c >= 2 &&
+              gameGrid[r][c - 1] === newItem &&
+              gameGrid[r][c - 2] === newItem)
+          );
+          gameGrid[r][c] = newItem;
+        }
+      }
+      attempts++;
+      // Batasi attempts agar tidak infinity loop
+      if (attempts > 50) {
+        console.warn(
+          'Gagal membuat grid dengan gerakan valid setelah 50 percobaan. Memaksa start.'
         );
-        gameGrid[r][c] = newItem;
+        break;
+      }
+    } while (!checkSolvable()); // Loop sampai grid solvable
+  }
+
+  function checkSolvable() {
+    // Loop melalui setiap tile dan coba swap ke kanan dan ke bawah
+    for (let r = 0; r < GRID_SIZE; r++) {
+      for (let c = 0; c < GRID_SIZE; c++) {
+        // Coba swap ke kanan
+        if (c < GRID_SIZE - 1) {
+          swapTilesTemp(r, c, r, c + 1);
+          if (checkMatchesTemp()) {
+            swapTilesTemp(r, c, r, c + 1); // Kembalikan swap
+            return true;
+          }
+          swapTilesTemp(r, c, r, c + 1); // Kembalikan swap
+        }
+        // Coba swap ke bawah
+        if (r < GRID_SIZE - 1) {
+          swapTilesTemp(r, c, r + 1, c);
+          if (checkMatchesTemp()) {
+            swapTilesTemp(r, c, r + 1, c); // Kembalikan swap
+            return true;
+          }
+          swapTilesTemp(r, c, r + 1, c); // Kembalikan swap
+        }
       }
     }
+    return false;
+  }
+
+  // BARU: Swap sementara (tidak update DOM)
+  function swapTilesTemp(r1, c1, r2, c2) {
+    [gameGrid[r1][c1], gameGrid[r2][c2]] = [gameGrid[r2][c2], gameGrid[r1][c1]];
+  }
+
+  // BARU: Cek Match sementara (tidak mengembalikan Set, hanya boolean)
+  function checkMatchesTemp() {
+    // Cek Horizontal
+    for (let r = 0; r < GRID_SIZE; r++) {
+      for (let c = 0; c < GRID_SIZE - 2; c++) {
+        if (
+          gameGrid[r][c] === gameGrid[r][c + 1] &&
+          gameGrid[r][c] === gameGrid[r][c + 2]
+        )
+          return true;
+      }
+    }
+    // Cek Vertikal
+    for (let c = 0; c < GRID_SIZE; c++) {
+      for (let r = 0; r < GRID_SIZE - 2; r++) {
+        if (
+          gameGrid[r][c] === gameGrid[r + 1][c] &&
+          gameGrid[r][c] === gameGrid[r + 2][c]
+        )
+          return true;
+      }
+    }
+    return false;
   }
 
   // Menggambar grid ke HTML
@@ -310,10 +420,22 @@ document.addEventListener('DOMContentLoaded', function () {
         let matchedTiles = checkMatches();
         if (matchedTiles.length > 0) {
           movesLeft--;
+          if (movesLeft <= 0) {
+            endGame(
+              false,
+              'Gerakan Habis. Skor HB: ' + currentHbLevel.toFixed(1) + ' g/dL.'
+            );
+            // Hentikan proses lebih lanjut
+            selectedTile.classList.remove('selected');
+            selectedTile = null;
+            updateGameStats();
+            return; // Keluar dari fungsi
+          }
           processMatches(matchedTiles);
         } else {
           // Jika tidak ada match, kembalikan swap
           swapTiles(r, c, selectedR, selectedC);
+          playSoundNotMathcesPuzzle();
           document.getElementById('game-feedback').textContent =
             'Tidak ada match. Coba langkah lain!';
         }
@@ -392,6 +514,18 @@ document.addEventListener('DOMContentLoaded', function () {
           tilesToRemove.add(`${match.r + i},${match.c}`);
       }
 
+      tilesToRemove.forEach((pos) => {
+        const [r, c] = pos.split(',').map(Number);
+        // Cari elemen tile di DOM
+        const tileElement = document.querySelector(
+          `.game-tile[data-row="${r}"][data-col="${c}"]`
+        );
+        if (tileElement) {
+          tileElement.classList.add('matched-effect'); // Tambahkan kelas animasi
+          playSoundMathcesPuzzle();
+        }
+      });
+
       // LOGIKA SKOR DAN HB
       score += MATCH_SCORE;
 
@@ -405,6 +539,8 @@ document.addEventListener('DOMContentLoaded', function () {
           match.item
         }! HB naik +${HB_INCREMENT_PER_MATCH.toFixed(1)}!`;
         comboCount++;
+        document.getElementById('main-character-game-img').src =
+          getCharacterImage(mainCharacter.id, 'senang');
       } else if (isJunk) {
         score -= PENALTY_SCORE;
         hbChange -= HB_INCREMENT_PER_MATCH;
@@ -413,6 +549,8 @@ document.addEventListener('DOMContentLoaded', function () {
         ).textContent = `Match Junk Food! HB turun -${HB_INCREMENT_PER_MATCH.toFixed(
           1
         )}!`;
+        document.getElementById('main-character-game-img').src =
+          getCharacterImage(mainCharacter.id, 'murung');
       } else {
         document.getElementById('game-feedback').textContent = `Match Biasa.`;
       }
@@ -427,6 +565,8 @@ document.addEventListener('DOMContentLoaded', function () {
       ).textContent += ` KEKUATAN KOMBO Fe + Vit C! HB Bonus +${HB_COMBO_BONUS.toFixed(
         1
       )}!`;
+      document.getElementById('main-character-game-img').src =
+        getCharacterImage(mainCharacter.id, 'senang');
     }
 
     currentHbLevel = Math.max(
@@ -434,19 +574,21 @@ document.addEventListener('DOMContentLoaded', function () {
       Math.min(HB_TARGET + 1, currentHbLevel + hbChange)
     ); // Batasi HB min 8
 
-    // Hapus ubin dan terapkan gravitasi
-    applyGravityAndRefill(tilesToRemove);
-
-    // Cek match berturut-turut (cascading)
-    // Cek match berturut-turut (cascading)
+    // agar animasi memiliki waktu untuk diputar (~300ms)
     setTimeout(() => {
-      let cascadeMatches = checkMatches();
-      if (cascadeMatches.length > 0) {
-        processMatches(cascadeMatches); // Rekursi
-      } else {
-        drawGrid(); // Gambar ulang setelah semua cascade selesai
-      }
-    }, 200);
+      // Lanjutkan proses penghapusan dan gravitasi
+      applyGravityAndRefill(tilesToRemove);
+
+      // Cek match berturut-turut (cascading) setelah gravitasi
+      setTimeout(() => {
+        let cascadeMatches = checkMatches();
+        if (cascadeMatches.length > 0) {
+          processMatches(cascadeMatches); // Rekursi
+        } else {
+          drawGrid();
+        }
+      }, 200);
+    }, 300); // Penundaan 300ms untuk visual
   }
 
   function applyGravityAndRefill(tilesToRemove) {
@@ -480,6 +622,74 @@ document.addEventListener('DOMContentLoaded', function () {
         }
       }
     }
+  }
+
+  // File: hari7.js
+
+  function endGame(win, message) {
+    playGameClickSound();
+
+    // Nonaktifkan interaksi grid
+    const gridContainer = document.getElementById('game-grid');
+    if (gridContainer) gridContainer.style.pointerEvents = 'none';
+
+    document.getElementById('game-feedback').textContent = message;
+
+    // Tampilkan tombol untuk pindah ke Dashboard
+    let btnEndGame = document.getElementById('btn-end-game');
+    if (!btnEndGame) {
+      // Jika tombol belum ada (karena di-inject), kita harus menambahkannya
+      const puzzleContainer = document.querySelector('.puzzle-container');
+      if (puzzleContainer) {
+        btnEndGame = document.createElement('button');
+        btnEndGame.id = 'btn-end-game';
+        btnEndGame.className = 'btn-primary btn-large';
+        btnEndGame.style.marginTop = '20px';
+        puzzleContainer.appendChild(btnEndGame);
+      } else {
+        // Jika container tidak ada, langsung panggil showFinalDashboard (fallback)
+        showFinalDashboard(score, win);
+        return;
+      }
+    }
+
+    btnEndGame.textContent = 'Lihat Laporan Hasil Akhir';
+    btnEndGame.style.display = 'block';
+
+    // Pindah ke dashboard setelah user klik tombol
+    btnEndGame.onclick = () => {
+      playSoundFinish();
+      showFinalDashboard(score, win);
+    };
+  }
+
+  // File: hari7.js (Tambahkan fungsi ini)
+
+  function shuffleGrid() {
+    let allTiles = [];
+    // 1. Kumpulkan semua item ke dalam array satu dimensi
+    for (let r = 0; r < GRID_SIZE; r++) {
+      for (let c = 0; c < GRID_SIZE; c++) {
+        allTiles.push(gameGrid[r][c]);
+      }
+    }
+
+    // 2. Acak array
+    for (let i = allTiles.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [allTiles[i], allTiles[j]] = [allTiles[j], allTiles[i]];
+    }
+
+    // 3. Masukkan kembali ke grid
+    let k = 0;
+    for (let r = 0; r < GRID_SIZE; r++) {
+      for (let c = 0; c < GRID_SIZE; c++) {
+        gameGrid[r][c] = allTiles[k++];
+      }
+    }
+    drawGrid();
+    document.getElementById('game-feedback').textContent =
+      'Grid diacak! Cari langkah baru.';
   }
 
   // --- Final Dashboard Logic ---

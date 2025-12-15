@@ -51,12 +51,23 @@ body {
   max-width: 450px;
   width: 90%;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .puzzle-header h2 {
   color: var(--primary-red);
   font-size: 2em;
-  margin-bottom: 20px;
+}
+
+.puzzle-header h3 {
+  color: var(--success);
+  font-size: 1.2em;
+  margin: 10px 10px;
+  padding: 2px 0;
+  font-weight: 500;
 }
 
 .puzzle-stats-container {
@@ -70,12 +81,15 @@ body {
 
 .puzzle-stats {
   display: flex;
+  justify-content: center;
+  column-gap: 2rem;
 }
 
 .stat-item {
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding: 15px 0;
 }
 
 .stat-label {
@@ -140,7 +154,7 @@ body {
   position: absolute;
   bottom: 0;
   left: 20px;
-  width: 250px;
+  width: 450px;
   height: auto;
   z-index: 10;
 }
@@ -241,6 +255,35 @@ body {
   text-align: center;
 }
 
+/* File: hari7.css (Tambahkan di bagian Game Tile Styles) */
+
+/* ... (Kode CSS sebelumnya) ... */
+
+/* Animasi Match (untuk menandakan ubin akan segera dihapus) */
+.game-tile.matched-effect {
+  /* Ganti background warna untuk menonjol */
+  background: var(--accent-orange);
+  color: white !important;
+
+  /* Animasi kunci */
+  animation: match-flash 0.3s ease-out;
+}
+
+@keyframes match-flash {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(0);
+    opacity: 0;
+  }
+}
+
 /* ===== Media Queries untuk Responsif Hari 7 (PERBAIKAN) ===== */
 
 /* Tablet (max-width: 768px) */
@@ -329,5 +372,9 @@ body {
     /* Tombol lebih kecil */
     padding: 15px 30px;
     font-size: 1.1em;
+  }
+
+  .puzzle-header h3 {
+    margin: 20px 10px;
   }
 }
